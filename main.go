@@ -9,14 +9,11 @@ import (
 func main() {
         router := gin.Default()
 
-        // router.GET("/", func(c *gin.Context) {
-        //         c.JSON(200, gin.H{
-        //                 "data": "WILDSCRIBE 2305",
-        //         })
-        // })
 				configs.ConnectDB()
 				
 				routes.UserRoute(router)
+
+        routes.AdventureRoute(router)
 
 
         router.Run("localhost:6000") 
