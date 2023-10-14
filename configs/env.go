@@ -7,16 +7,13 @@ import (
 )
 
 func EnvMongoURI() string {
-		godotenv.Load(".env")
-    if os.Getenv("APP_ENV") == "development" {
-        err := godotenv.Load()
-        if err != nil {
-            log.Fatal("Error loading .env file")
-        }
+    if os.Getenv("PROD_ENV") == "production" {
 				return os.Getenv("MONGOURI")
-    }
-
-
-
-    return os.Getenv("MONGOURI")
+    }	else	{
+			err := godotenv.Load()
+			if err != nil {
+					log.Fatal("Error loading .env file")
+			}
+			return os.Getenv("MONGOURI")
+		}
 }
