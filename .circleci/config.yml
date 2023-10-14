@@ -24,44 +24,19 @@ workflows:
     jobs:
       - build_and_test
 
-# version: 2.1
-# orbs:
-#   go: circleci/go@1.7.3
-#   heroku: circleci/heroku@1.2.6
+      deploy: # this can be any name you choose
+    executor: heroku/default
+    steps:
+      - heroku/deploy-via-git:
+          force: true # force push when pushing to the heroku remote, see: https://devcenter.heroku.com/articles/git
 
-# jobs:
-#   build_and_test: /go/src/github.com/2305-WildScribe/2305-WildScribe_gin_mongodb_api
-#     executor:
-#       name: go/default # Use the default executor from the orb
-#       tag: '1.21.3' # Specify a version tag
-#     steps:
-#       - checkout # checkout source code
-#       - go/load-cache # Load cached Go modules.
-#       - go/mod-download # Run 'go mod download'.
-#       - go/save-cache # Save Go modules to cache.
-#       - go/test: # Runs 'go test ./...' but includes extensive parameterization for finer tuning.
-#           covermode: atomic
-#           failfast: true
-#           race: true
-      # - persist_to_workspace:
-      #     root: ~/project
-      #     paths: 
-
-#   deploy: # this can be any name you choose
-#     executor: heroku/default
-#     steps:
-#       - attach_workspace:
-#           at: ~/project
-#       - heroku/deploy-via-git:
-#           force: true # force push when pushing to the heroku remote, see: https://devcenter.heroku.com/articles/git
-
-# workflows:
-#   test_my_app:
-#     jobs:
-#       - build_and_test
-#       - deploy:
-#           requires:
-#             - build_and_test # only deploy if the build_and_test job has completed
-#           filters:
-#             branches:
-#               only: main # only deploy when on main
+workflows:
+  test_my_app:
+    jobs:
+      - build_and_test
+      - deploy:
+          requires:
+            - build_and_test # only deploy if the build_and_test job has completed
+          filters:
+            branches:
+              only: staging # only deploy when on main
