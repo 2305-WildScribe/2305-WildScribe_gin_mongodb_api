@@ -18,25 +18,66 @@ jobs:
           failfast: true
           race: true
 
+  deploy:
+    executor: heroku/default
+    steps:
+      - checkout
+      - heroku/deploy-via-git:
+          force: true
+
 workflows:
   version: 2
   build-deploy:
     jobs:
       - build_and_test
-
-      deploy: # this can be any name you choose
-    executor: heroku/default
-    steps:
-      - heroku/deploy-via-git:
-          force: true # force push when pushing to the heroku remote, see: https://devcenter.heroku.com/articles/git
-
-workflows:
-  test_my_app:
-    jobs:
-      - build_and_test
       - deploy:
           requires:
-            - build_and_test # only deploy if the build_and_test job has completed
+            - build_and_test
           filters:
             branches:
-              only: staging # only deploy when on main
+              only: staging
+
+
+# version: 2.1
+# orbs:
+#   go: circleci/go@1.7.3
+#   heroku: circleci/heroku@1.2.6
+
+# jobs:
+#   build_and_test:
+#     executor:
+#       name: go/default
+#       tag: '1.21.3'
+#     steps:
+#       - checkout
+#       - go/load-cache
+#       - go/mod-download
+#       - go/save-cache
+#       - go/test:
+#           covermode: atomic
+#           failfast: true
+#           race: true
+
+# workflows:
+#   version: 2
+#   build-deploy:
+#     jobs:
+#       - build_and_test
+
+
+#     deploy: # this can be any name you choose
+#     executor: heroku/default
+#     steps:
+#       - heroku/deploy-via-git:
+#           force: true # force push when pushing to the heroku remote, see: https://devcenter.heroku.com/articles/git
+
+# workflows:
+#   test_my_app:
+#     jobs:
+#       - build_and_test
+#       - deploy:
+#           requires:
+#             - build_and_test # only deploy if the build_and_test job has completed
+#           filters:
+#             branches:
+#               only: staging # only deploy when on main
