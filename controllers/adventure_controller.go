@@ -2,6 +2,7 @@ package controllers
 
 import (
     "context"
+    "gin-mongo-api/authentication"
     "gin-mongo-api/configs"
     "gin-mongo-api/models"
     "gin-mongo-api/responses"
@@ -80,4 +81,37 @@ func GetAnAdventure() gin.HandlerFunc {
 		c.JSON(http.StatusOK, responses.AdventureResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": adventure}})
 	}
 }
-	
+
+func GetAdventuresForUser() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+        defer cancel()
+
+        userID := authentication.GetAuthenticatedUserID(c)
+
+        var adventures []models.Adventure
+
+        cursor, err := adventureCollection.Find(ctx, bson.M{"userId": userID})
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+            return
+        }
+        defer cursor.Close(ctx)
+
+        for cursor.Next(ctx) {
+            var adventure models.Adventure
+            if err := cursor.Decode(&adventure); err != nil {
+                c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+                return
+            }
+            adventures = append(adventures, adventure)
+        }
+
+        if err := cursor.Err(); err != nil {
+            c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+            return
+        }
+
+        c.JSON(http.StatusOK, responses.AdventureResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": adventures}})
+    }
+}

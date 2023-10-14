@@ -54,3 +54,27 @@ func TestCreateUser(t *testing.T) {
 	router.ServeHTTP(response, req)
 	assert.Equal(t, http.StatusCreated, response.Code)
 }
+
+func TestGetAdventuresForUser(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	router := gin.Default()
+
+	userID := "user123"
+
+	url := "/user/adventures/" + userID
+
+	req, _ := http.NewRequest(http.MethodGet, url, nil)
+	response := httptest.NewRecorder()
+
+	router.GET("/user/adventures/:userId", controllers.GetAdventuresForUser())
+
+	router.ServeHTTP(response, req)
+
+	assert.Equal(t, http.StatusOK, response.Code)
+
+	var responseBody map[string]interface{}
+	err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+	assert.Nil(t, err)
+	assert.NotNil(t, responseBody["data"])
+}
