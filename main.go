@@ -4,6 +4,9 @@ import (
 	"gin-mongo-api/configs"
 	"gin-mongo-api/routes"
 	"github.com/gin-gonic/gin"
+	// "log"
+	"os"
+	// "github.com/joho/godotenv"
 )
 
 func main() {
@@ -15,6 +18,8 @@ func main() {
 
         routes.AdventureRoute(router)
 
-
-        router.Run("localhost:6000") 
+				port := os.Getenv("PORT")
+				router.Run(":"+port)
+				
+        // router.Run("localhost:6000") 
 }
