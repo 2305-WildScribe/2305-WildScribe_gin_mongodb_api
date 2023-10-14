@@ -1,0 +1,28 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:latest
+    working_directory: /go/src/github.com/2305-WildScribe/2305-WildScribe_gin_mongodb_api
+    steps:
+      - checkout
+      - run: go mod download
+      - run: go build
+
+  test:
+    docker:
+      - image: circleci/golang:latest
+    working_directory: /go/src/github.com/2305-WildScribe/2305-WildScribe_gin_mongodb_api
+    steps:
+      - checkout
+      - run: go test ./...
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
