@@ -5,7 +5,7 @@ import (
 	"gin-mongo-api/routes"
 	"github.com/gin-gonic/gin"
 	// "log"
-	// "os"
+	"os"
 	// "github.com/joho/godotenv"
 )
 
@@ -17,9 +17,10 @@ func main() {
 				routes.UserRoute(router)
 
         routes.AdventureRoute(router)
-
-				// port := os.Getenv("PORT")
-				// router.Run(":"+port)
-				
-        router.Run("localhost:6000") 
+				if os.Getenv("PROD_ENV") == "production" {
+				port := os.Getenv("PORT")
+				router.Run(":"+port)
+				} else {
+					router.Run("localhost:6000")
+				}    
 }
