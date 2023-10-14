@@ -1,6 +1,6 @@
 module gin-mongo-api
 
-go 1.21.3
+go 1.23
 
 require (
 	github.com/bytedance/sonic v1.10.2 // indirect
