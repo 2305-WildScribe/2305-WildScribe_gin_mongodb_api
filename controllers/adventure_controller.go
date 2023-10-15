@@ -2,7 +2,8 @@ package controllers
 
 import (
     "context"
-    "gin-mongo-api/authentication"
+    "gin-mongo-api/requests"
+    // "gin-mongo-api/authentication"
     "gin-mongo-api/configs"
     "gin-mongo-api/models"
     "gin-mongo-api/responses"
@@ -86,13 +87,14 @@ func GetAdventuresForUser() gin.HandlerFunc {
     return func(c *gin.Context) {
         ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
         defer cancel()
+        var requestBody requests.GetUserAdventureRequest
 
-        userID := authentication.GetAuthenticatedUserID(c)
+        userID := requestBody.Data.Attributes.User_id
 
         var adventures []models.Adventure
 
-        cursor, err := adventureCollection.Find(ctx, bson.M{"userId": userID})
-        if err != nil {
+        cursor, _ := adventureCollection.Find(ctx, bson.M{"userId": userID})
+        if err := c.ShouldBindJSON(&requestBody); err != nil {
             c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
             return
         }
