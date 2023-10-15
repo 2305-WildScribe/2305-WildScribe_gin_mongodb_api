@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"gin-mongo-api/controllers"
+	"gin-mongo-api/requests"
 	// "github.com/stretchr/testify/mock"
 )
 
@@ -54,3 +55,24 @@ func TestCreateUser(t *testing.T) {
 	router.ServeHTTP(response, req)
 	assert.Equal(t, http.StatusCreated, response.Code)
 }
+
+func TestDeleteAdventure(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	var requestBody requests.DeleteAdventureRequest
+	
+	requestBody.Data.Type = "adventure"
+	requestBody.Data.Attributes.Adventure_id = "6529ccc80177d706906e3c72"
+
+	router := gin.Default()
+	
+	router.DELETE("/adventure", controllers.DeleteAdventure())
+	
+	body, _ := json.Marshal(requestBody)
+	req, _ := http.NewRequest(http.MethodPost, "/adventures", bytes.NewBuffer(body))
+	response := httptest.NewRecorder()
+
+	router.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+}
+

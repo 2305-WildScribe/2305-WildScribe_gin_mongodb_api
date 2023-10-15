@@ -1,12 +1,26 @@
-package responses
+package requests
+	
 
-type AdventureResponse struct {
-    Status  int                    `json:"status"`
-    Message string                 `json:"message"`
-    Data    map[string]interface{} `json:"data"`
+type DeleteAdventureRequest struct {
+    Data struct {
+        Type       string `json:"type"`
+        Attributes struct {
+            User_id int `json:"user_id"`
+            Adventure_id string `json:"adventure_id"`
+        } `json:"attributes"`
+    } `json:"data"`
 }
 
-type GetAdventureResponse struct {
+type GetAdventureRequest struct {
+    Data struct {
+        Type       string `json:"type"`
+        Attributes struct {
+            Adventure_id string `json:"adventure_id"`
+        } `json:"attributes"`
+    } `json:"data"`
+}
+
+type CreateAdventureRequest struct {
     Data struct {
         Type       string `json:"type"`
         Attributes struct {

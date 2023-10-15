@@ -9,5 +9,5 @@ func AdventureRoute(router *gin.Engine)  {
 
 	router.POST("/adventures", controllers.CreateAdventure())
 	router.POST("/adventure", controllers.GetAnAdventure())
-
+	router.DELETE("/adventure", controllers.DeleteAdventure())
 }
