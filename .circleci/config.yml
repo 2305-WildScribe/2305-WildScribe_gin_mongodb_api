@@ -1,28 +1,38 @@
 version: 2.1
+orbs:
+  go: circleci/go@1.7.3
+  heroku: circleci/heroku@1.2.6
 
 jobs:
-  build:
-    docker:
-      - image: circleci/golang:latest
-    working_directory: /go/src/github.com/2305-WildScribe/2305-WildScribe_gin_mongodb_api
+  build_and_test:
+    executor:
+      name: go/default
+      tag: '1.21.3'
     steps:
       - checkout
-      - run: go mod download
-      - run: go build
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
+      - go/test:
+          covermode: atomic
+          failfast: true
+          race: true
 
-  test:
-    docker:
-      - image: circleci/golang:latest
-    working_directory: /go/src/github.com/2305-WildScribe/2305-WildScribe_gin_mongodb_api
+  deploy:
+    executor: heroku/default
     steps:
       - checkout
-      - run: go test ./...
+      - heroku/deploy-via-git:
+          force: true
 
 workflows:
   version: 2
-  build_and_test:
+  build-deploy:
     jobs:
-      - build
-      - test:
+      - build_and_test
+      - deploy:
           requires:
-            - build
+            - build_and_test
+          filters:
+            branches:
+              only: staging
