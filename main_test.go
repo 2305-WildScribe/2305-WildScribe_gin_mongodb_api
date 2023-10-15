@@ -11,6 +11,7 @@ import (
 	"gin-mongo-api/controllers"
 	"gin-mongo-api/requests"
 	// "github.com/stretchr/testify/mock"
+	"fmt"
 )
 
 // Create a mock for the mongo collection
@@ -62,17 +63,20 @@ func TestDeleteAdventure(t *testing.T) {
 	var requestBody requests.DeleteAdventureRequest
 	
 	requestBody.Data.Type = "adventure"
-	requestBody.Data.Attributes.Adventure_id = "6529ccc80177d706906e3c72"
+	requestBody.Data.Attributes.User_id = 12
+	requestBody.Data.Attributes.Adventure_id = "652b8fa89b931bc26c016f24"
 
 	router := gin.Default()
 	
 	router.DELETE("/adventure", controllers.DeleteAdventure())
 	
 	body, _ := json.Marshal(requestBody)
-	req, _ := http.NewRequest(http.MethodPost, "/adventures", bytes.NewBuffer(body))
+	
+	req, _ := http.NewRequest(http.MethodDelete, "/adventure", bytes.NewBuffer(body))
 	response := httptest.NewRecorder()
-
+	
 	router.ServeHTTP(response, req)
+	fmt.Printf("requestBody: %+v\n", response)
 	assert.Equal(t, http.StatusOK, response.Code)
 }
 

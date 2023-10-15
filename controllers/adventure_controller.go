@@ -9,6 +9,7 @@ import (
     "gin-mongo-api/serializers"
     "net/http"
     "time"
+    // "fmt"
     "github.com/gin-gonic/gin"
     "github.com/go-playground/validator/v10"
     "go.mongodb.org/mongo-driver/mongo"
@@ -30,11 +31,12 @@ func CreateAdventure() gin.HandlerFunc {
             c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
             return
         }
-        //validate the request body
-        if err := c.BindJSON(&requestBody); err != nil {
-            c.JSON(http.StatusBadRequest, responses.AdventureResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
-            return
-        }
+        // //validate the request body
+        // if err := c.BindJSON(&requestBody); err != nil {
+        //     c.JSON(http.StatusBadRequest, responses.AdventureResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+        //     return
+        // }
+        // fmt.Printf("requestBody: %+v\n", requestBody)
         //use the validator library to validate required fields
         if validationErr := validateAdventure.Struct(&requestBody.Data.Attributes); validationErr != nil {
             c.JSON(http.StatusBadRequest, responses.AdventureResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": validationErr.Error()}})
