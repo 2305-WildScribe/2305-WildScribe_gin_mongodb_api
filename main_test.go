@@ -11,6 +11,7 @@ import (
 	"gin-mongo-api/controllers"
 	"gin-mongo-api/requests"
 	// "github.com/stretchr/testify/mock"
+	"fmt"
 )
 
 // Create a mock for the mongo collection
@@ -56,29 +57,26 @@ func TestCreateUser(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, response.Code)
 }
 
-func TestGetAdventuresForUser(t *testing.T) {
+func TestDeleteAdventure(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	var requestBody requests.GetUserAdventureRequest
-	userID := "65299d4ceb708107b33729c6"
-	requestBody.Data.Attributes.User_id = userID
+	var requestBody requests.DeleteAdventureRequest
+	
+	requestBody.Data.Type = "adventure"
+	requestBody.Data.Attributes.User_id = 12
+	requestBody.Data.Attributes.Adventure_id = "652b8fa89b931bc26c016f24"
+
 	router := gin.Default()
-
-
-	url := "/user/adventures/"
-
-	req, _ := http.NewRequest(http.MethodGet, url, nil)
-	response := httptest.NewRecorder()
-
-	router.POST(url, controllers.GetAdventuresForUser())
+	
+	router.DELETE("/adventure", controllers.DeleteAdventure())
+	
 	body, _ := json.Marshal(requestBody)
-	req, _ = http.NewRequest(http.MethodPost, url, bytes.NewBuffer(body))
+	
+	req, _ := http.NewRequest(http.MethodDelete, "/adventure", bytes.NewBuffer(body))
+	response := httptest.NewRecorder()
+	
 	router.ServeHTTP(response, req)
-
+	fmt.Printf("requestBody: %+v\n", response)
 	assert.Equal(t, http.StatusOK, response.Code)
-
-	// var responseBody map[string]interface{}
-	// err := json.Unmarshal(response.Body.Bytes(), &responseBody)
-	// assert.Nil(t, err)
-	// assert.NotNil(t, responseBody["data"])
 }
+
