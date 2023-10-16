@@ -18,6 +18,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+    // "encoding/json"
 )
 
 var validateAdventure = validator.New()
@@ -50,7 +51,8 @@ func CreateAdventure() gin.HandlerFunc {
         response.Data.Type = "adventure"
         // Binds http response to request struct and checks for required fields
         if err := c.ShouldBindJSON(&requestBody); err != nil {
-            error_response.Data.Error = "Invalid Request"
+            // requestBodyJSON, _ := json.Marshal(requestBody)
+            // error_response.Data.Error = string(requestBodyJSON)
             c.JSON(http.StatusBadRequest, error_response)
             return
         }
@@ -123,7 +125,7 @@ func GetAnAdventure() gin.HandlerFunc {
         // Set Request Body
 		var requestBody requests.GetAdventureRequest
         // Set Response Defaults
-        var response responses.GetAdventureResponse
+        var response responses.GetAnAdventureResponse
         response.Data.Type = "adventure"
         // Set Response Error
         var error_response responses.AdventureErrorResponse
@@ -146,14 +148,14 @@ func GetAnAdventure() gin.HandlerFunc {
 		}
         // Set model type for find
         var adventure models.Adventure
-        // Find adventure by objid
-        filter := bson.M{"_id": objId}  
+        // Sets Filter adventure by objid
+        filter := bson.M{"_id": objId  }
         // Finds adventure in collection
         result := adventureCollection.FindOne(ctx, filter).Decode(&adventure)
         // Returns 404 if Adventure not found
-		if result == nil {   
+		if result != nil {   
             error_response.Data.Error = "Invalid adventure ID"
-            error_response.Data.Attributes = map[string]interface{}{"adventure_id": "test" }
+            error_response.Data.Attributes = map[string]interface{}{"adventure_id": filter }
             c.JSON(http.StatusNotFound, error_response)
 			return
 		}
@@ -169,33 +171,68 @@ func GetAdventuresForUser() gin.HandlerFunc {
     return func(c *gin.Context) {
         ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
         defer cancel()
+
         var requestBody requests.GetUserAdventureRequest
+
+        if err := c.ShouldBindJSON(&requestBody); err != nil {
+            c.JSON(http.StatusBadRequest, responses.AdventureErrorResponse{
+                Data: struct {
+                    Error      string                 `json:"error"`
+                    Attributes map[string]interface{} `json:"attributes,omitempty"`
+                }{
+                    Error: "Invalid Request",
+                },
+            })
+            return
+        }
 
         userID := requestBody.Data.Attributes.User_id
 
-        var adventures []models.Adventure
+        // Create a filter to find documents with the specified user_id
+        filter := bson.M{"user_id": userID}
 
-        // cursor, _ := adventureCollection.Find(ctx, bson.M{"user_id": userID})
-        if err := c.ShouldBindJSON(&requestBody); err != nil {
-            // c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Data: map[string]interface{}{"error": err.Error()}})
+        // Find documents that match the filter
+        cursor, err := adventureCollection.Find(ctx, filter)
+        if err != nil {
+            // Handle the error and return an error response
+            c.JSON(http.StatusInternalServerError, responses.AdventureErrorResponse{
+                Data: struct {
+                    Error      string                 `json:"error"`
+                    Attributes map[string]interface{} `json:"attributes,omitempty"`
+                }{
+                    Error: "Internal Server Error",
+                },
+            })
             return
         }
         defer cursor.Close(ctx)
 
-        for cursor.Next(ctx) {
-            var adventure models.Adventure
-            if err := cursor.Decode(&adventure); err != nil {
-                // c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Data: map[string]interface{}{"error": err.Error()}})
-                return
-            }
-            adventures = append(adventures, adventure)
-        }
+        var adventures []responses.UserAdventureResponse
 
-        if err := cursor.Err(); err != nil {
-            // c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Data: map[string]interface{}{"error": err.Error()}})
+        // Use cursor.All to decode documents into a slice
+        if err := cursor.All(ctx, &adventures); err != nil {
+            // Handle the error and return an error response
+            c.JSON(http.StatusInternalServerError, responses.AdventureErrorResponse{
+                Data: struct {
+                    Error      string                 `json:"error"`
+                    Attributes map[string]interface{} `json:"attributes,omitempty"`
+                }{
+                    Error: "Internal Server Error",
+                },
+            })
             return
         }
 
-        // c.JSON(http.StatusOK, responses.AdventureResponse{Data: map[string]interface{}{"type":"adventures" , "attributes": adventures}})
+        response := responses.GetAdventureResponse{
+            Data: struct {
+                Type       string               `json:"type" binding:"required"`
+                Attributes []responses.UserAdventureResponse  `json:"attributes" binding:"required"`
+            }{
+                Type:       "adventures",
+                Attributes: adventures,
+            },
+        }
+
+        c.JSON(http.StatusOK, response)
     }
 }
