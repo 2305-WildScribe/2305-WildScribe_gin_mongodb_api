@@ -4,7 +4,12 @@ import "gin-mongo-api/models"
 
 
 type AdventureResponse struct {
-    Data    map[string]interface{} `json:"data"`
+
+    Data struct {
+        Type        string                  `json:"type" binding:"required"`
+        Message     string                  `json:"message,omitempty"`
+        Attributes  map[string]interface{}  `json:"attributes,omitempty"`
+    }    `json:"data"`
 }
 
 type GetAdventureResponse struct {
@@ -14,11 +19,9 @@ type GetAdventureResponse struct {
     } `json:"data" binding:"required"`
 }
 
-type AdventureError struct {
+type AdventureErrorResponse struct {
     Data struct {
         Error string `json:"error"`
-        Attributes struct {
-            Adventure_id    string      `json:"adventure_id"`
-        }   `json:"attributes"`
+        Attributes  map[string]interface{}  `json:"attributes,omitempty"`
     }   `json:"data"`
 }
