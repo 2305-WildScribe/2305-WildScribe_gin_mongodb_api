@@ -1,5 +1,6 @@
 package responses
 
+
 type AdventureResponse struct {
     Status  int                    `json:"status"`
     Message string                 `json:"message"`
@@ -20,4 +21,14 @@ type GetAdventureResponse struct {
             Diet 			string                 	`json:"diet,omitempty"`
         } `json:"attributes"`
     } `json:"data"`
+}
+
+type AdventureError struct {
+    Data struct {
+        Error string `json:"error"`
+        Attributes struct {
+            User_id         string      `json:"user_id"`
+            Adventure_id    string      `json:"adventure_id"`
+        }   `json:"attributes"`
+    }   `json:"data"`
 }

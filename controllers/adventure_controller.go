@@ -7,11 +7,10 @@ import (
     "gin-mongo-api/configs"
     "gin-mongo-api/models"
     "gin-mongo-api/responses"
-    "gin-mongo-api/requests"
     "gin-mongo-api/serializers"
     "net/http"
     "time"
-    // "fmt"
+    "fmt"
     "github.com/gin-gonic/gin"
     "github.com/go-playground/validator/v10"
     "go.mongodb.org/mongo-driver/mongo"
@@ -22,29 +21,46 @@ import (
 var adventureCollection *mongo.Collection = configs.GetCollection(configs.DB, "adventures")
 var validateAdventure = validator.New()
 
+func userExists(ctx context.Context, userID string) (bool, error) {
+    objId, _ := primitive.ObjectIDFromHex(userID) 
+    count, err := userCollection.CountDocuments(ctx,  bson.M{"_id": objId})
+    fmt.Printf("Filter: %v\n", objId)
+    return count > 0, err
+}
+
+
 func CreateAdventure() gin.HandlerFunc {
     return func(c *gin.Context) {
         ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
         defer cancel()
         // Sets a request struct
         var requestBody requests.CreateAdventureRequest
-        // Binds response to request struct
+        // Binds response to request struct and checks for required fields
         if err := c.ShouldBindJSON(&requestBody); err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            var adventureError   responses.AdventureError
+            adventureError.Data.Error = "Required Fields Not Filled"
+            adventureError.Data.Attributes.User_id = requestBody.Data.Attributes.User_id 
+            adventureError.Data.Attributes.Adventure_id = "nil"
+            c.JSON(http.StatusBadRequest, adventureError)
             return
         }
-        // //validate the request body
-        // if err := c.BindJSON(&requestBody); err != nil {
-        //     c.JSON(http.StatusBadRequest, responses.AdventureResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
-        //     return
-        // }
-        // fmt.Printf("requestBody: %+v\n", requestBody)
-        //use the validator library to validate required fields
-        if validationErr := validateAdventure.Struct(&requestBody.Data.Attributes); validationErr != nil {
-            c.JSON(http.StatusBadRequest, responses.AdventureResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": validationErr.Error()}})
+        // Check if User_id is a valid user
+        userID := requestBody.Data.Attributes.User_id
+        userExists, err := userExists(ctx, userID)
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
             return
         }
-        // Serializes the request and assings it
+        // Sends error if user dosen't exist
+        if !userExists {
+            var adventureError   responses.AdventureError
+            adventureError.Data.Error = "Invalid User ID"
+            adventureError.Data.Attributes.User_id = requestBody.Data.Attributes.User_id 
+            adventureError.Data.Attributes.Adventure_id = "nil"
+            c.JSON(http.StatusBadRequest, adventureError)
+            return
+        }
+        // If all validations pass then serializes the request and assings it
         adventure := serializers.SerializeCreateAdventureRequest(requestBody)
         // Inserts the serialized model into the db
         result, err := adventureCollection.InsertOne(ctx, adventure)
