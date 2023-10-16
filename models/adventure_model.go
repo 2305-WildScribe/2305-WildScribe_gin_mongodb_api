@@ -4,7 +4,7 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Adventure struct {
     User_id              string `json:"user_id" binding:"required"`
-    Adventure_id         primitive.ObjectID `json:"adventure_id" bson:"_id"`
+    Adventure_id         primitive.ObjectID `json:"adventure_id,omitempty" bson:"_id,omitempty"`
     Activity             string `json:"activity" binding:"required"`
     Date                 string `json:"date,omitempty"`
     Image_url            string `json:"image_url,omitempty"`
