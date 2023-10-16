@@ -63,7 +63,6 @@ func TestDeleteAdventure(t *testing.T) {
 	var requestBody requests.DeleteAdventureRequest
 	
 	requestBody.Data.Type = "adventure"
-	requestBody.Data.Attributes.User_id = 12
 	requestBody.Data.Attributes.Adventure_id = "652b8fa89b931bc26c016f24"
 
 	router := gin.Default()

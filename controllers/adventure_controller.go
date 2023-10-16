@@ -21,13 +21,12 @@ import (
 var adventureCollection *mongo.Collection = configs.GetCollection(configs.DB, "adventures")
 var validateAdventure = validator.New()
 
-func userExists(ctx context.Context, userID string) (bool, error) {
+func userExists(ctx context.Context, userID string) (bool) {
     objId, _ := primitive.ObjectIDFromHex(userID) 
-    count, err := userCollection.CountDocuments(ctx,  bson.M{"_id": objId})
+    count, _ := userCollection.CountDocuments(ctx,  bson.M{"_id": objId})
     fmt.Printf("Filter: %v\n", objId)
-    return count > 0, err
+    return count > 0
 }
-
 
 func CreateAdventure() gin.HandlerFunc {
     return func(c *gin.Context) {
@@ -37,27 +36,15 @@ func CreateAdventure() gin.HandlerFunc {
         var requestBody requests.CreateAdventureRequest
         // Binds response to request struct and checks for required fields
         if err := c.ShouldBindJSON(&requestBody); err != nil {
-            var adventureError   responses.AdventureError
-            adventureError.Data.Error = "Required Fields Not Filled"
-            adventureError.Data.Attributes.User_id = requestBody.Data.Attributes.User_id 
-            adventureError.Data.Attributes.Adventure_id = "nil"
-            c.JSON(http.StatusBadRequest, adventureError)
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
             return
         }
         // Check if User_id is a valid user
         userID := requestBody.Data.Attributes.User_id
-        userExists, err := userExists(ctx, userID)
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
-            return
-        }
+        userExists := userExists(ctx, userID)
         // Sends error if user dosen't exist
-        if !userExists {
-            var adventureError   responses.AdventureError
-            adventureError.Data.Error = "Invalid User ID"
-            adventureError.Data.Attributes.User_id = requestBody.Data.Attributes.User_id 
-            adventureError.Data.Attributes.Adventure_id = "nil"
-            c.JSON(http.StatusBadRequest, adventureError)
+        if userExists == false {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
             return
         }
         // If all validations pass then serializes the request and assings it
@@ -65,11 +52,11 @@ func CreateAdventure() gin.HandlerFunc {
         // Inserts the serialized model into the db
         result, err := adventureCollection.InsertOne(ctx, adventure)
         if err != nil {
-            c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+            c.JSON(http.StatusNotFound, gin.H{"error": "Not Found"})
             return
         }
         //Returns 201 and success when created
-        c.JSON(http.StatusCreated, responses.AdventureResponse{Status: http.StatusCreated, Message: "success", Data: map[string]interface{}{"data": result}})
+        c.JSON(http.StatusCreated, responses.AdventureResponse{Data: map[string]interface{}{"message": "success", "adventure_id": result.InsertedID }})
     }
 }
 
@@ -81,13 +68,13 @@ func DeleteAdventure() gin.HandlerFunc {
         var requestBody requests.DeleteAdventureRequest
         // Binds the request json to requestBody
         if err := c.ShouldBindJSON(&requestBody); err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Request"})
             return
         }
         // Accesses the nested data
         adventureId := requestBody.Data.Attributes.Adventure_id
         // Sets the object id
-        objId, err := primitive.ObjectIDFromHex(adventureId)
+        objId, err := primitive.ObjectIDFromHex(adventureId);
         if err != nil {
             c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Adventure ID"})
             return
@@ -95,13 +82,12 @@ func DeleteAdventure() gin.HandlerFunc {
         // Sets the filter
         filter := bson.M{"_id": objId}
         // Delete the object from the collection
-        if _, err := adventureCollection.DeleteOne(ctx, filter); err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-
-    c.JSON(http.StatusOK, responses.UserResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"message": "Adventure Deleted"}})
-        
+        result, err := adventureCollection.DeleteOne(ctx, filter)
+        if result.DeletedCount == 0 {
+            c.JSON(http.StatusOK, gin.H{"message":  "Invalid Adventure ID" })
+            return
+        }
+        c.JSON(http.StatusOK, gin.H{"message":  "Adventure Deleted" })
     }
 }
 
@@ -109,33 +95,37 @@ func GetAnAdventure() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-
-		var requestBody map[string]interface{}
+        // Set Request Body
+		var requestBody requests.GetAdventureRequest
+        // Binds request json to requestBody
 		if err := c.ShouldBindJSON(&requestBody); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Request"})
 			return
 		}
-
-		adventureId, ok := requestBody["adventureId"].(string)
-		if !ok {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "adventureId is required and should be a string"})
-			return
-		}
-
+        // Gets Adventure ID and sets it as a var
+		adventureId := requestBody.Data.Attributes.Adventure_id
+        // Check if valid ID
 		objId, err := primitive.ObjectIDFromHex(adventureId)
+        // Returns Bad Request if invalid format
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid adventure ID format"})
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid adventure ID"})
 			return
 		}
-
-		var adventure models.Adventure
+        // Set model type for find
+        var adventure models.Adventure
+        // Find adventure by objid
 		err = adventureCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&adventure)
+        // Returns 404 if Adventure not found
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+            c.JSON(http.StatusNotFound, responses.AdventureResponse{Data: map[string]interface{}{"type":"adventure" , "attributes": adventure}})
 			return
 		}
-
-		c.JSON(http.StatusOK, responses.AdventureResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": adventure}})
+        // Set Response 
+        var response responses.GetAdventureResponse
+        response.Data.Attributes = adventure
+        response.Data.Type = "adventure"
+        // Send JSON
+		c.JSON(http.StatusOK, response)
 	}
 }
 
@@ -149,9 +139,9 @@ func GetAdventuresForUser() gin.HandlerFunc {
 
         var adventures []models.Adventure
 
-        cursor, _ := adventureCollection.Find(ctx, bson.M{"userId": userID})
+        cursor, _ := adventureCollection.Find(ctx, bson.M{"user_id": userID})
         if err := c.ShouldBindJSON(&requestBody); err != nil {
-            c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+            c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Data: map[string]interface{}{"error": err.Error()}})
             return
         }
         defer cursor.Close(ctx)
@@ -159,17 +149,17 @@ func GetAdventuresForUser() gin.HandlerFunc {
         for cursor.Next(ctx) {
             var adventure models.Adventure
             if err := cursor.Decode(&adventure); err != nil {
-                c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+                c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Data: map[string]interface{}{"error": err.Error()}})
                 return
             }
             adventures = append(adventures, adventure)
         }
 
         if err := cursor.Err(); err != nil {
-            c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+            c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Data: map[string]interface{}{"error": err.Error()}})
             return
         }
 
-        c.JSON(http.StatusOK, responses.AdventureResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": adventures}})
+        c.JSON(http.StatusOK, responses.AdventureResponse{Data: map[string]interface{}{"type":"adventures" , "attributes": adventures}})
     }
 }

@@ -7,8 +7,8 @@ import (
 
 func AdventureRoute(router *gin.Engine)  {
 
-	router.POST("/adventures", controllers.CreateAdventure())
-	router.POST("/adventure", controllers.GetAnAdventure())
-	router.POST("/user/adventures", controllers.GetAdventuresForUser())
-	router.DELETE("/adventure", controllers.DeleteAdventure())
+	router.POST("/api/v0/adventures", controllers.CreateAdventure())
+	router.DELETE("/api/v0/adventure", controllers.DeleteAdventure())
+	router.POST("/api/v0/user/adventure", controllers.GetAnAdventure())
+	router.POST("/api/v0/user/adventures", controllers.GetAdventuresForUser())
 }

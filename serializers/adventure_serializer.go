@@ -15,7 +15,7 @@ func SerializeCreateAdventureRequest(req requests.CreateAdventureRequest) models
         Sleep_stress_notes:         req.Data.Attributes.Sleep_stress_notes,
         Hydration:                  req.Data.Attributes.Hydration,
         Diet:                       req.Data.Attributes.Diet,
-        Diet_hydration_notes:       req.Data.Attributes.Diet_Hydration_notes,
+        Diet_hydration_notes:       req.Data.Attributes.Diet_hydration_notes,
         Beta_notes:                 req.Data.Attributes.Beta_notes,
     }
 }

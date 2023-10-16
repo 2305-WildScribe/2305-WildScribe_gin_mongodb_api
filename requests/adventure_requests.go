@@ -3,21 +3,20 @@ package requests
 
 type DeleteAdventureRequest struct {
     Data struct {
-        Type       string `json:"type"`
+        Type       string `json:"type" binding:"required"`
         Attributes struct {
-            User_id int `json:"user_id"`
-            Adventure_id string `json:"adventure_id"`
-        } `json:"attributes"`
-    } `json:"data"`
+            Adventure_id string `json:"adventure_id" binding:"required"`
+        } `json:"attributes" binding:"required"`
+    } `json:"data" binding:"required"`
 }
 
 type GetAdventureRequest struct {
     Data struct {
-        Type       string `json:"type"`
+        Type       string `json:"type" binding:"required"`
         Attributes struct {
-            Adventure_id string `json:"adventure_id"`
-        } `json:"attributes"`
-    } `json:"data"`
+            Adventure_id string `json:"adventure_id" binding:"required"`
+        } `json:"attributes" binding:"required"`
+    } `json:"data" binding:"required"`
 }
 
 type CreateAdventureRequest struct {
@@ -31,9 +30,9 @@ type CreateAdventureRequest struct {
             Stress_level 	        string              `json:"stress_level,omitempty"`
             Hours_slept             int                 `json:"hours_slept,omitempty"`
             Sleep_stress_notes      string              `json:"sleep_stress_notes,omitemtpy"`
-            Hydration               string                 `json:"hydration,omitempty"`
+            Hydration               string              `json:"hydration,omitempty"`
             Diet                    string              `json:"diet,omitemtpy"`
-            Diet_Hydration_notes    string              `json:"diet_and_hydration_notes,omitempty"`
+            Diet_hydration_notes    string              `json:"diet_and_hydration_notes,omitempty"`
             Beta_notes  	        string				`json:"beta_notes,omitempty"`
         } `json:"attributes" binding:"required"`
     } `json:"data" binding:"required"`
@@ -41,9 +40,9 @@ type CreateAdventureRequest struct {
 
 type GetUserAdventureRequest struct {
 	Data struct {
-		Type			 string `json:"type"`
+		Type			 string `json:"type" binding:"required"`
 		Attributes struct {
-			User_id 	 string `json:"user_id"`
-		} `json:"attributes"`
-	} `json:"data"`
+			User_id 	 string `json:"user_id" binding:"required"`
+		} `json:"attributes" binding:"required"`
+	} `json:"data" binding:"required"`
 }
