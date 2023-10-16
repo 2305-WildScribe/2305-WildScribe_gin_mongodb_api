@@ -3,64 +3,29 @@ package main_test
 import (
 	"bytes"
 	"encoding/json"
+	"gin-mongo-api/configs"
+	"gin-mongo-api/controllers"
+	"gin-mongo-api/requests"
+	"gin-mongo-api/responses"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"gin-mongo-api/controllers"
-	"gin-mongo-api/requests"
-	"fmt"
+	"go.mongodb.org/mongo-driver/mongo"
+	"strings"
 )
 
-// Create a mock for the mongo collection
-// type MockCollection struct {
-// 	mock.Mock
-// }
+var adventureCollection *mongo.Collection = configs.GetCollection(configs.DB, "adventures")
+var adventure_id string
+var user_id string
 
-// func (m *MockCollection) InsertOne(ctx, document interface{}) (interface{}, error) {
-// 	args := m.Called(ctx, document)
-// 	return args.Get(0), args.Error(1)
-// }
-
-func TestCreateUser(t *testing.T) {
-	// Switch gin mode to test mode
-	gin.SetMode(gin.TestMode)
-
-	// Create a new router
-	router := gin.Default()
-
-	// Mock database interactions
-	// mockCollection := new(MockCollection)
-
-	// Point userCollection to our mock
-	// userCollection := mockCollection
-
-	// Setup the route
-	router.POST("/user", controllers.CreateUser())
-
-	// Test successful insertion
-	userData := map[string]string{
-		"name":     "Test",
-		"email": "TestLocation",
-		"password":    "TestTitle",
-	}
-	body, _ := json.Marshal(userData)
-	req, _ := http.NewRequest(http.MethodPost, "/user", bytes.NewBuffer(body))
-	response := httptest.NewRecorder()
-
-	// // Expect InsertOne to be called once and return nil as error
-	// userCollection.On("InsertOne", mock.Anything, mock.Anything).Return(nil, nil)
-
-	router.ServeHTTP(response, req)
-	assert.Equal(t, http.StatusCreated, response.Code)
-}
 func TestCreateAdventure(t *testing.T) {
     // Create a mock adventure collection
-
+	user_id = "652c6cb6ab7c7d4070bc6f3f"
     var requestBody requests.CreateAdventureRequest
     requestBody.Data.Type = "adventure"
-    requestBody.Data.Attributes.User_id = "652c6cb6ab7c7d4070bc6f3f"
+    requestBody.Data.Attributes.User_id = user_id
     requestBody.Data.Attributes.Activity = "Test Activity"
 
     router := gin.Default()
@@ -74,19 +39,56 @@ func TestCreateAdventure(t *testing.T) {
 
     router.ServeHTTP(response, req)
 
+	var responseBody responses.AdventureResponse
+	err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal response body: %v", err)
+	}
+	// Access the adventure ID
+	adventure_id = responseBody.Data.Attributes["adventure_id"].(string)
     // Assert that the response code is HTTP 201 (Created)
     assert.Equal(t, http.StatusCreated, response.Code)
 
     // Additional assertions if needed
 }
+func TestGetAnAdventure(t *testing.T) {
+	// Create a new Gin router
+	router := gin.Default()
 
+	// Create a request JSON body
+	requestBody := `{
+		"data": {
+			"type": "adventure",
+			"attributes": {
+				"adventure_id": "` + adventure_id + `"
+			}
+		}
+	}`
+	router.POST("/api/v0/user/adventure", controllers.GetAnAdventure())
+
+	// Create an HTTP request
+	req, err := http.NewRequest(http.MethodPost, "/api/v0/user/adventure", strings.NewReader(requestBody))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Create a response recorder to capture the response
+	recorder := httptest.NewRecorder()
+
+	// Serve the request using the router
+	router.ServeHTTP(recorder, req)
+
+	// Assert that the response code is HTTP 200 (OK)
+	assert.Equal(t, http.StatusOK, recorder.Code)
+
+	// Perform additional assertions on the response body or other aspects as needed
+}
 func TestDeleteAdventure(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	var requestBody requests.DeleteAdventureRequest
 	
 	requestBody.Data.Type = "adventure"
-	requestBody.Data.Attributes.Adventure_id = "652cf6787bb2c18496d70f14"
+	requestBody.Data.Attributes.Adventure_id = adventure_id
 
 	router := gin.Default()
 	
@@ -98,7 +100,39 @@ func TestDeleteAdventure(t *testing.T) {
 	response := httptest.NewRecorder()
 	
 	router.ServeHTTP(response, req)
-	fmt.Printf("requestBody: %+v\n", response)
 	assert.Equal(t, http.StatusOK, response.Code)
 }
 
+
+func TestGetAdventuresForUser(t *testing.T) {
+    // Create a new Gin router
+    router := gin.Default()
+
+    // Create a request JSON body
+    requestBody := `{
+        "data": {
+            "type": "adventures",
+            "attributes": {
+                "user_id": "` + user_id + `"
+            }
+        }
+    }`
+	router.POST("/api/v0/user/adventures", controllers.GetAdventuresForUser())
+
+    // Create an HTTP request
+    req, err := http.NewRequest(http.MethodPost, "/api/v0/user/adventures", strings.NewReader(requestBody))
+    if err != nil {
+        t.Fatal(err)
+    }
+
+    // Create a response recorder to capture the response
+    recorder := httptest.NewRecorder()
+
+    // Serve the request using the router
+    router.ServeHTTP(recorder, req)
+
+    // Assert that the response code is HTTP 200 (OK)
+    assert.Equal(t, http.StatusOK, recorder.Code)
+
+    // Perform additional assertions on the response body or other aspects as needed
+}

@@ -1,9 +1,12 @@
 package responses
 
 type UserResponse struct {
-    Status  int                    `json:"status"`
-    Message string                 `json:"message"`
-    Data    map[string]interface{} `json:"data"`
+    Data struct {
+    Message         string                      `json:"message,omitempty"`
+    Error           string                      `json:"error,omitempty"`
+    Type            string                      `json:"type,omitempty"`
+    Attributes      map[string]interface{}      `json:"attributes,omitempty"`
+    }   `json:"data"`
 }
 
 type UserErrorResponse struct {

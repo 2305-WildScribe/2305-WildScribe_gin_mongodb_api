@@ -23,6 +23,7 @@ var validate = validator.New()
 func CreateUser() gin.HandlerFunc {
     return func(c *gin.Context) {
         ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+        var userResponse responses.UserResponse
         
         defer cancel()
         var requestBody requests.CreateUserRequest
@@ -32,21 +33,16 @@ func CreateUser() gin.HandlerFunc {
             return
         }
 
-        // //use the validator library to validate required fields
-        // if validationErr := validate.Struct(&user); validationErr != nil {
-        //     c.JSON(http.StatusBadRequest, responses.UserResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": validationErr.Error()}})
-        //     return
-        // }
-
         newUser := serializers.SerializeCreateUserRequest(requestBody)
 
         result, err := userCollection.InsertOne(ctx, newUser)
         if err != nil {
-            c.JSON(http.StatusInternalServerError, responses.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+            c.JSON(http.StatusInternalServerError,userResponse)
             return
         }
-
-        c.JSON(http.StatusCreated, responses.UserResponse{Status: http.StatusCreated, Message: "success", Data: map[string]interface{}{"data": result}})
+        userResponse.Data.Message = "success"
+        userResponse.Data.Attributes = map[string]interface{}{"user_id": result.InsertedID}
+        c.JSON(http.StatusCreated, userResponse)
     }
 }
 
@@ -55,17 +51,17 @@ func GetAUser() gin.HandlerFunc {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			userId := c.Param("userId")
 			var user models.User
+            var userResponse responses.UserResponse
 			defer cancel()
 
 			objId, _ := primitive.ObjectIDFromHex(userId)
 
 			err := userCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&user)
 			if err != nil {
-					c.JSON(http.StatusInternalServerError, responses.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+					c.JSON(http.StatusInternalServerError, userResponse)
 					return
 			}
-
-			c.JSON(http.StatusOK, responses.UserResponse{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": user}})
+			c.JSON(http.StatusOK, userResponse)
 	}
 }
 	
