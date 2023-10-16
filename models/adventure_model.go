@@ -4,6 +4,7 @@ package models
 
 type Adventure struct {
     User_id              string `json:"user_id" binding:"required"`
+    Adventure_id         string
     Activity             string `json:"activity" binding:"required"`
     Date                 string `json:"date,omitempty"`
     Image_url            string `json:"image_url,omitempty"`
