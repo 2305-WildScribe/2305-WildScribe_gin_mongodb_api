@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"context"
-	"gin-mongo-api/collections"
+	// "gin-mongo-api/collections"
 	"gin-mongo-api/requests"
 
 	// "gin-mongo-api/authentication"
@@ -17,13 +17,13 @@ import (
 	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	// "go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var validateAdventure = validator.New()
-var adventureCollection collections.AdventureCollection
+var adventureCollection *mongo.Collection
 
-func SetAdventureCollection(collection collections.AdventureCollection) {
+func SetAdventureCollection(collection *mongo.Collection) {
     adventureCollection = collection
 }
 func userExists(ctx context.Context, userID string) bool {
@@ -32,7 +32,7 @@ func userExists(ctx context.Context, userID string) bool {
     if err != nil {
         return false
     }
-    // counts to see if there is a user with that id
+    // Counts to see if there is a user with that id
     count, _ := userCollection.CountDocuments(ctx, bson.M{"_id": objID})
     return count > 0
 }
@@ -147,13 +147,13 @@ func GetAnAdventure() gin.HandlerFunc {
         // Set model type for find
         var adventure models.Adventure
         // Find adventure by objid
-        filter := bson.M{"_id": objId}
-
-		result := adventureCollection.FindOne(ctx,filter).Decode(&adventure)
+        filter := bson.M{"_id": objId}  
+        // Finds adventure in collection
+        result := adventureCollection.FindOne(ctx, filter).Decode(&adventure)
         // Returns 404 if Adventure not found
 		if result == nil {   
             error_response.Data.Error = "Invalid adventure ID"
-            error_response.Data.Attributes = map[string]interface{}{"adventure_id": adventureId }
+            error_response.Data.Attributes = map[string]interface{}{"adventure_id": "test" }
             c.JSON(http.StatusNotFound, error_response)
 			return
 		}
