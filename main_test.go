@@ -6,14 +6,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"gin-mongo-api/controllers"
 	"gin-mongo-api/requests"
-	"gin-mongo-api/mocks"
-	"github.com/stretchr/testify/mock"
-	"go.mongodb.org/mongo-driver/mongo"
 	"fmt"
 )
 
@@ -61,23 +57,11 @@ func TestCreateUser(t *testing.T) {
 }
 func TestCreateAdventure(t *testing.T) {
     // Create a mock adventure collection
-    mockAdventureCollection := new(mocks.MockAdventureCollection)
-    controllers.SetAdventureCollection(mockAdventureCollection)
 
     var requestBody requests.CreateAdventureRequest
     requestBody.Data.Type = "adventure"
     requestBody.Data.Attributes.User_id = "652c6cb6ab7c7d4070bc6f3f"
     requestBody.Data.Attributes.Activity = "Test Activity"
-
-    // Create a mock context with a cancel function
-    ctx, cancel := context.WithCancel(context.Background())
-    defer cancel()
-
-    // Define the expected result when inserting the adventure
-    expectedResult := &mongo.InsertOneResult{InsertedID: "your-inserted-ID"}
-
-    // Mock the InsertOne method on the adventure collection
-    mockAdventureCollection.On("InsertOne", ctx, mock.Anything).Return(expectedResult, nil)
 
     router := gin.Default()
 

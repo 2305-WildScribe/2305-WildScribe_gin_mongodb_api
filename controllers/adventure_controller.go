@@ -6,7 +6,7 @@ import (
 	"gin-mongo-api/requests"
 
 	// "gin-mongo-api/authentication"
-	// "gin-mongo-api/configs"
+	"gin-mongo-api/configs"
 	"gin-mongo-api/models"
 	"gin-mongo-api/responses"
 	"gin-mongo-api/serializers"
@@ -21,11 +21,12 @@ import (
 )
 
 var validateAdventure = validator.New()
-var adventureCollection *mongo.Collection
+var adventureCollection *mongo.Collection = configs.GetCollection(configs.DB, "adventures")
 
-func SetAdventureCollection(collection *mongo.Collection) {
-    adventureCollection = collection
-}
+// func SetAdventureCollection(collection collections.AdventureCollection) {
+//     adventureCollection = collection
+// }
+
 func userExists(ctx context.Context, userID string) bool {
     // Checks if a valid user id before going to db
     objID, err := primitive.ObjectIDFromHex(userID)
@@ -146,14 +147,14 @@ func GetAnAdventure() gin.HandlerFunc {
 		}
         // Set model type for find
         var adventure models.Adventure
-        // Find adventure by objid
-        filter := bson.M{"_id": objId}  
+        // Sets Filter adventure by objid
+        filter := bson.M{"_id": objId  }
         // Finds adventure in collection
         result := adventureCollection.FindOne(ctx, filter).Decode(&adventure)
         // Returns 404 if Adventure not found
-		if result == nil {   
+		if result != nil {   
             error_response.Data.Error = "Invalid adventure ID"
-            error_response.Data.Attributes = map[string]interface{}{"adventure_id": "test" }
+            error_response.Data.Attributes = map[string]interface{}{"adventure_id": filter }
             c.JSON(http.StatusNotFound, error_response)
 			return
 		}
