@@ -167,35 +167,35 @@ func GetAnAdventure() gin.HandlerFunc {
 
 func GetAdventuresForUser() gin.HandlerFunc {
     return func(c *gin.Context) {
-    //     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-    //     defer cancel()
-    //     var requestBody requests.GetUserAdventureRequest
+        ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+        defer cancel()
+        var requestBody requests.GetUserAdventureRequest
 
-    //     userID := requestBody.Data.Attributes.User_id
+        userID := requestBody.Data.Attributes.User_id
 
-    //     var adventures []models.Adventure
+        var adventures []models.Adventure
 
-    //     // cursor, _ := adventureCollection.Find(ctx, bson.M{"user_id": userID})
-    //     if err := c.ShouldBindJSON(&requestBody); err != nil {
-    //         // c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Data: map[string]interface{}{"error": err.Error()}})
-    //         return
-    //     }
-    //     defer cursor.Close(ctx)
+        // cursor, _ := adventureCollection.Find(ctx, bson.M{"user_id": userID})
+        if err := c.ShouldBindJSON(&requestBody); err != nil {
+            // c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Data: map[string]interface{}{"error": err.Error()}})
+            return
+        }
+        defer cursor.Close(ctx)
 
-    //     for cursor.Next(ctx) {
-    //         var adventure models.Adventure
-    //         if err := cursor.Decode(&adventure); err != nil {
-    //             // c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Data: map[string]interface{}{"error": err.Error()}})
-    //             return
-    //         }
-    //         adventures = append(adventures, adventure)
-    //     }
+        for cursor.Next(ctx) {
+            var adventure models.Adventure
+            if err := cursor.Decode(&adventure); err != nil {
+                // c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Data: map[string]interface{}{"error": err.Error()}})
+                return
+            }
+            adventures = append(adventures, adventure)
+        }
 
-    //     if err := cursor.Err(); err != nil {
-    //         // c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Data: map[string]interface{}{"error": err.Error()}})
-    //         return
-    //     }
+        if err := cursor.Err(); err != nil {
+            // c.JSON(http.StatusInternalServerError, responses.AdventureResponse{Data: map[string]interface{}{"error": err.Error()}})
+            return
+        }
 
-    //     // c.JSON(http.StatusOK, responses.AdventureResponse{Data: map[string]interface{}{"type":"adventures" , "attributes": adventures}})
+        // c.JSON(http.StatusOK, responses.AdventureResponse{Data: map[string]interface{}{"type":"adventures" , "attributes": adventures}})
     }
 }
