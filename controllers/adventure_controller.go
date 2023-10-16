@@ -207,11 +207,9 @@ func GetAdventuresForUser() gin.HandlerFunc {
         }
         defer cursor.Close(ctx)
 
-        var adventures []responses.UserAdventureResponse
+        var adventures []models.Adventure
 
-        // Use cursor.All to decode documents into a slice
         if err := cursor.All(ctx, &adventures); err != nil {
-            // Handle the error and return an error response
             c.JSON(http.StatusInternalServerError, responses.AdventureErrorResponse{
                 Data: struct {
                     Error      string                 `json:"error"`
@@ -226,7 +224,7 @@ func GetAdventuresForUser() gin.HandlerFunc {
         response := responses.GetAdventureResponse{
             Data: struct {
                 Type       string               `json:"type" binding:"required"`
-                Attributes []responses.UserAdventureResponse  `json:"attributes" binding:"required"`
+                Attributes []models.Adventure  `json:"attributes" binding:"required"`
             }{
                 Type:       "adventures",
                 Attributes: adventures,
