@@ -92,7 +92,7 @@ func GetAUser() gin.HandlerFunc {
             filter := bson.D{{Key:"email", Value: email}}
 			err := userCollection.FindOne(ctx, filter).Decode(&user)
 			if err != nil {
-                userResponse.Data.Error = "Invalid Email / Password"
+                userResponse.Data.Error = "Bad Search"
                 userResponse.Data.Type = "user"
                 userResponse.Data.Attributes = map[string]interface{}{"email": requestBody.Data.Attributes.Email, "password": requestBody.Data.Attributes.Password}
                 c.JSON(http.StatusUnauthorized, userResponse)
@@ -100,7 +100,7 @@ func GetAUser() gin.HandlerFunc {
 			}
             password := []byte(requestBody.Data.Attributes.Password)
             if comparePasswords(user.Password, password) == false{
-                userResponse.Data.Error = "Invalid Email / Password"
+                userResponse.Data.Error = "Bad Password"
                 userResponse.Data.Type = "user"
                 userResponse.Data.Attributes = map[string]interface{}{"email": requestBody.Data.Attributes.Email, "password": requestBody.Data.Attributes.Password}
 			    c.JSON(http.StatusUnauthorized, userResponse)
