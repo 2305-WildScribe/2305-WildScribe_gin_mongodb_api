@@ -19,10 +19,44 @@ import (
 var adventureCollection *mongo.Collection = configs.GetCollection(configs.DB, "adventures")
 var adventure_id string
 var user_id string
+func TestGetAUser(t *testing.T) {
+	email := "me@gmail.com"
+	password := "hi"
 
+	var requestBody requests.GetUserRequest
+
+	requestBody.Data.Type = "user"
+	requestBody.Data.Attributes.Email = email
+	requestBody.Data.Attributes.Password = password
+
+	router := gin.Default()
+
+    router.POST("/api/v0/user", controllers.GetAUser())
+
+    body, _ := json.Marshal(requestBody)
+
+    req, _ := http.NewRequest(http.MethodPost, "/api/v0/user", bytes.NewBuffer(body))
+    response := httptest.NewRecorder()
+
+    router.ServeHTTP(response, req)
+
+	var responseBody responses.AdventureResponse
+	err := json.Unmarshal(response.Body.Bytes(), &responseBody)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal response body: %v", err)
+	}
+	// Access the adventure ID
+	name := responseBody.Data.Attributes["name"].(string)
+	user_id = responseBody.Data.Attributes["user_id"].(string)
+    // Assert that the response code is HTTP 201 (Created)
+    assert.Equal(t, http.StatusOK, response.Code)
+    assert.Equal(t, "Ian", name)
+    assert.Equal(t, "652edaa67a75034ea37c6652", user_id)
+
+}
 func TestCreateAdventure(t *testing.T) {
     // Create a mock adventure collection
-	user_id = "652ed3250b59c18916efde3f"
+	
     var requestBody requests.AdventureRequest
     requestBody.Data.Type = "adventure"
     requestBody.Data.Attributes.User_id = user_id
