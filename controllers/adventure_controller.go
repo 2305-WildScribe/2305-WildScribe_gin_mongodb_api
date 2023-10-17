@@ -46,7 +46,7 @@ func CreateAdventure() gin.HandlerFunc {
         // Sets a error response struct
         var error_response responses.AdventureErrorResponse
         // Sets a request struct
-        var requestBody requests.CreateAdventureRequest
+        var requestBody requests.AdventureRequest
         // Sets a response struct
         var response responses.AdventureResponse
         response.Data.Type = "adventure"
@@ -242,7 +242,7 @@ func UpdateAdventure() gin.HandlerFunc {
 			defer cancel()
 
 			var error_response responses.AdventureErrorResponse
-			var requestBody requests.UpdateAdventureRequest
+			var requestBody requests.AdventureRequest
 			if err := c.ShouldBindJSON(&requestBody); err != nil {
 					error_response.Data.Error = "Invalid Request"
 					c.JSON(http.StatusBadRequest, error_response)
@@ -250,7 +250,7 @@ func UpdateAdventure() gin.HandlerFunc {
 			}
 
 			// Getting the adventureId from the request's path, may have to change if we want ID to be in body of request
-			adventureId := c.Param("id")
+			adventureId := requestBody.Data.Attributes.Adventure_id
 			objId, err := primitive.ObjectIDFromHex(adventureId)
 			if err != nil {
 					error_response.Data.Error = "Invalid adventure ID"

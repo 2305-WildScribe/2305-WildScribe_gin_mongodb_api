@@ -11,5 +11,5 @@ func AdventureRoute(router *gin.Engine)  {
 	router.DELETE("/api/v0/adventure", controllers.DeleteAdventure())
 	router.POST("/api/v0/user/adventure", controllers.GetAnAdventure())
 	router.POST("/api/v0/user/adventures", controllers.GetAdventuresForUser())
-	router.PUT("/api/v0/adventures/:id", controllers.UpdateAdventure())
+	router.PUT("/api/v0/adventure", controllers.UpdateAdventure())
 }
