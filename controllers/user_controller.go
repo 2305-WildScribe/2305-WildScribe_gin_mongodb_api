@@ -12,7 +12,6 @@ import (
 
     "github.com/gin-gonic/gin"
     "github.com/go-playground/validator/v10"
-    "go.mongodb.org/mongo-driver/bson/primitive"
     "go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -49,18 +48,28 @@ func CreateUser() gin.HandlerFunc {
 func GetAUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-			userId := c.Param("userId")
+            defer cancel()
+
+            var requestBody requests.GetUserRequest
+            // Binds http request to requestBody
+            if err := c.ShouldBindJSON(&requestBody); err != nil {
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+            }
+    
 			var user models.User
             var userResponse responses.UserResponse
 			defer cancel()
-
-			objId, _ := primitive.ObjectIDFromHex(userId)
-
-			err := userCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&user)
+            email := requestBody.Data.Attributes.Email
+            password := requestBody.Data.Attributes.Password
+            filter := bson.D{{Key:"email", Value: email},{Key:"password",Value:password}}
+			err := userCollection.FindOne(ctx, filter).Decode(&user)
 			if err != nil {
 					c.JSON(http.StatusInternalServerError, userResponse)
 					return
 			}
+            userResponse.Data.Type = "user"
+            userResponse.Data.Attributes = map[string]interface{}{"name":user.Name, "user_id": user.User_id}
 			c.JSON(http.StatusOK, userResponse)
 	}
 }

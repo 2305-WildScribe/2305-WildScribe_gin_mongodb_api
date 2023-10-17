@@ -14,6 +14,6 @@ func UserRoute(router *gin.Engine)  {
 })
 
 	router.POST("/user", controllers.CreateUser())
-	router.GET("/user/:userId", controllers.GetAUser())
+	router.POST("/api/v0/user", controllers.GetAUser())
 
 }

@@ -35,7 +35,7 @@ func userExists(ctx context.Context, userID string) bool {
         return false
     }
     // Counts to see if there is a user with that id
-    count, _ := userCollection.CountDocuments(ctx, bson.M{"_id": objID})
+    count, _ := userCollection.CountDocuments(ctx, bson.D{{Key:"_id",Value:objID}})
     return count > 0
 }
 
@@ -102,7 +102,7 @@ func DeleteAdventure() gin.HandlerFunc {
             return
         }
         // Sets the filter
-        filter := bson.M{"_id": objId}
+        filter := bson.D{{Key:"_id",Value:objId}}
         // Delete the object from the collection
         result, err := adventureCollection.DeleteOne(ctx, filter)
         if result.DeletedCount == 0 {
@@ -150,7 +150,7 @@ func GetAnAdventure() gin.HandlerFunc {
         // Set model type for find
         var adventure models.Adventure
         // Sets Filter adventure by objid
-        filter := bson.M{"_id": objId  }
+        filter := bson.D{{Key:"_id",Value:objId}}
         // Finds adventure in collection
         result := adventureCollection.FindOne(ctx, filter).Decode(&adventure)
         // Returns 404 if Adventure not found
@@ -190,7 +190,7 @@ func GetAdventuresForUser() gin.HandlerFunc {
         userID := requestBody.Data.Attributes.User_id
 
         // Create a filter to find documents with the specified user_id
-        filter := bson.M{"user_id": userID}
+        filter := bson.D{{Key:"user_id",Value:userID}}
 
         // Find documents that match the filter
         cursor, err := adventureCollection.Find(ctx, filter)
