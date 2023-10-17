@@ -22,7 +22,7 @@ var user_id string
 
 func TestCreateAdventure(t *testing.T) {
     // Create a mock adventure collection
-	user_id = "652c6cb6ab7c7d4070bc6f3f"
+	user_id = "652ed3250b59c18916efde3f"
     var requestBody requests.AdventureRequest
     requestBody.Data.Type = "adventure"
     requestBody.Data.Attributes.User_id = user_id

@@ -1,7 +1,6 @@
 package authentication
 
-import "github.com/gin-gonic/gin"
+import (
+    
+)
 
-func GetAuthenticatedUserID(c *gin.Context) string {
-    return "user123"
-}
