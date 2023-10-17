@@ -22,8 +22,8 @@ func main() {
 
 		// adventure_collection :
 		// same as
-		// config := cors.DefaultConfig()
-		// config.AllowAllOrigins = true
+		config := cors.DefaultConfig()
+		config.AllowAllOrigins = true
 		// router.Use(cors.New(config))
 		router.Use(cors.Default())
 		router.Run()
