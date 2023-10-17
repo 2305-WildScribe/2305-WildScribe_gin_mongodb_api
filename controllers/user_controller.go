@@ -95,7 +95,7 @@ func GetAUser() gin.HandlerFunc {
                 userResponse.Data.Error = "Invalid Email / Password"
                 userResponse.Data.Type = "user"
                 userResponse.Data.Attributes = map[string]interface{}{"email": requestBody.Data.Attributes.Email, "password": requestBody.Data.Attributes.Password}
-                c.JSON(http.StatusInternalServerError, userResponse)
+                c.JSON(http.StatusUnauthorized, userResponse)
                 return
 			}
             password := []byte(requestBody.Data.Attributes.Password)
