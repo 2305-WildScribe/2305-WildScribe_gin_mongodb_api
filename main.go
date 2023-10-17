@@ -25,7 +25,7 @@ func main() {
 		config := cors.DefaultConfig()
 		config.AllowAllOrigins = true
 		router.Use(cors.New(config))
-		router.Use(cors.Default())
+		// router.Use(cors.Default())
 		router.Run()
         routes.AdventureRoute(router)
 				if os.Getenv("PROD_ENV") == "production" {
