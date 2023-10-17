@@ -19,11 +19,12 @@ type GetAdventureRequest struct {
     } `json:"data" binding:"required"`
 }
 
-type CreateAdventureRequest struct {
+type AdventureRequest struct {
     Data struct {
         Type string `json:"type" binding:"required"`
         Attributes struct {
             User_id              string `json:"user_id" binding:"required"`
+            Adventure_id         string `json:"adventure_id,omitempty"`
             Activity             string `json:"activity" binding:"required"`
             Date                 string `json:"date,omitempty"`
             Image_url            string `json:"image_url,omitempty"`

@@ -4,7 +4,7 @@ package serializers
 import "gin-mongo-api/models"
 import "gin-mongo-api/requests"
 
-func SerializeCreateAdventureRequest(req requests.CreateAdventureRequest) models.Adventure {
+func SerializeCreateAdventureRequest(req requests.AdventureRequest) models.Adventure {
     return models.Adventure{
         User_id:                    req.Data.Attributes.User_id,
         Activity:                   req.Data.Attributes.Activity,

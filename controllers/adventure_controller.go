@@ -35,7 +35,7 @@ func userExists(ctx context.Context, userID string) bool {
         return false
     }
     // Counts to see if there is a user with that id
-    count, _ := userCollection.CountDocuments(ctx, bson.M{"_id": objID})
+    count, _ := userCollection.CountDocuments(ctx, bson.D{{Key:"_id",Value:objID}})
     return count > 0
 }
 
@@ -46,7 +46,7 @@ func CreateAdventure() gin.HandlerFunc {
         // Sets a error response struct
         var error_response responses.AdventureErrorResponse
         // Sets a request struct
-        var requestBody requests.CreateAdventureRequest
+        var requestBody requests.AdventureRequest
         // Sets a response struct
         var response responses.AdventureResponse
         response.Data.Type = "adventure"
@@ -102,7 +102,7 @@ func DeleteAdventure() gin.HandlerFunc {
             return
         }
         // Sets the filter
-        filter := bson.M{"_id": objId}
+        filter := bson.D{{Key:"_id",Value:objId}}
         // Delete the object from the collection
         result, err := adventureCollection.DeleteOne(ctx, filter)
         if result.DeletedCount == 0 {
@@ -150,7 +150,7 @@ func GetAnAdventure() gin.HandlerFunc {
         // Set model type for find
         var adventure models.Adventure
         // Sets Filter adventure by objid
-        filter := bson.M{"_id": objId  }
+        filter := bson.D{{Key:"_id",Value:objId}}
         // Finds adventure in collection
         result := adventureCollection.FindOne(ctx, filter).Decode(&adventure)
         // Returns 404 if Adventure not found
@@ -190,7 +190,7 @@ func GetAdventuresForUser() gin.HandlerFunc {
         userID := requestBody.Data.Attributes.User_id
 
         // Create a filter to find documents with the specified user_id
-        filter := bson.M{"user_id": userID}
+        filter := bson.D{{Key:"user_id",Value:userID}}
 
         // Find documents that match the filter
         cursor, err := adventureCollection.Find(ctx, filter)
@@ -234,4 +234,57 @@ func GetAdventuresForUser() gin.HandlerFunc {
 
         c.JSON(http.StatusOK, response)
     }
+}
+
+func UpdateAdventure() gin.HandlerFunc {
+	return func(c *gin.Context) {
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			var error_response responses.AdventureErrorResponse
+			var requestBody requests.AdventureRequest
+			if err := c.ShouldBindJSON(&requestBody); err != nil {
+					error_response.Data.Error = "Invalid Request"
+					c.JSON(http.StatusBadRequest, error_response)
+					return
+			}
+
+			// Getting the adventureId from the request's path, may have to change if we want ID to be in body of request
+			adventureId := requestBody.Data.Attributes.Adventure_id
+			objId, err := primitive.ObjectIDFromHex(adventureId)
+			if err != nil {
+					error_response.Data.Error = "Invalid adventure ID"
+					error_response.Data.Attributes = map[string]interface{}{"adventure_id": adventureId}
+					c.JSON(http.StatusBadRequest, error_response)
+					return
+			}
+
+			update := bson.M{
+					"$set": bson.M{
+							"activity":             requestBody.Data.Attributes.Activity,
+							"date":                 requestBody.Data.Attributes.Date,
+							"image_url":            requestBody.Data.Attributes.Image_url,
+							"stress_level":         requestBody.Data.Attributes.Stress_level,
+							"hours_slept":          requestBody.Data.Attributes.Hours_slept,
+							"sleep_stress_notes":   requestBody.Data.Attributes.Sleep_stress_notes,
+							"hydration":            requestBody.Data.Attributes.Hydration,
+							"diet":                 requestBody.Data.Attributes.Diet,
+							"diet_hydration_notes": requestBody.Data.Attributes.Diet_hydration_notes,
+							"beta_notes":           requestBody.Data.Attributes.Beta_notes,
+					},
+			}
+
+			result, err := adventureCollection.UpdateOne(ctx, bson.M{"_id": objId}, update)
+			if err != nil || result.ModifiedCount == 0 {
+					error_response.Data.Error = "Adventure not updated"
+					error_response.Data.Attributes = map[string]interface{}{"adventure_id": adventureId}
+					c.JSON(http.StatusInternalServerError, error_response)
+					return
+			}
+
+			var response responses.AdventureResponse
+			response.Data.Type = "adventure"
+			response.Data.Message = "success"
+			c.JSON(http.StatusOK, response)
+	}
 }
