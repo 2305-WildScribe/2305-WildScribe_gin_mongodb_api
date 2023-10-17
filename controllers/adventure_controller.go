@@ -235,3 +235,56 @@ func GetAdventuresForUser() gin.HandlerFunc {
         c.JSON(http.StatusOK, response)
     }
 }
+
+func UpdateAdventure() gin.HandlerFunc {
+	return func(c *gin.Context) {
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			var error_response responses.AdventureErrorResponse
+			var requestBody requests.UpdateAdventureRequest
+			if err := c.ShouldBindJSON(&requestBody); err != nil {
+					error_response.Data.Error = "Invalid Request"
+					c.JSON(http.StatusBadRequest, error_response)
+					return
+			}
+
+			// Getting the adventureId from the request's path, may have to change if we want ID to be in body of request
+			adventureId := c.Param("id")
+			objId, err := primitive.ObjectIDFromHex(adventureId)
+			if err != nil {
+					error_response.Data.Error = "Invalid adventure ID"
+					error_response.Data.Attributes = map[string]interface{}{"adventure_id": adventureId}
+					c.JSON(http.StatusBadRequest, error_response)
+					return
+			}
+
+			update := bson.M{
+					"$set": bson.M{
+							"activity":             requestBody.Data.Attributes.Activity,
+							"date":                 requestBody.Data.Attributes.Date,
+							"image_url":            requestBody.Data.Attributes.Image_url,
+							"stress_level":         requestBody.Data.Attributes.Stress_level,
+							"hours_slept":          requestBody.Data.Attributes.Hours_slept,
+							"sleep_stress_notes":   requestBody.Data.Attributes.Sleep_stress_notes,
+							"hydration":            requestBody.Data.Attributes.Hydration,
+							"diet":                 requestBody.Data.Attributes.Diet,
+							"diet_hydration_notes": requestBody.Data.Attributes.Diet_hydration_notes,
+							"beta_notes":           requestBody.Data.Attributes.Beta_notes,
+					},
+			}
+
+			result, err := adventureCollection.UpdateOne(ctx, bson.M{"_id": objId}, update)
+			if err != nil || result.ModifiedCount == 0 {
+					error_response.Data.Error = "Adventure not updated"
+					error_response.Data.Attributes = map[string]interface{}{"adventure_id": adventureId}
+					c.JSON(http.StatusInternalServerError, error_response)
+					return
+			}
+
+			var response responses.AdventureResponse
+			response.Data.Type = "adventure"
+			response.Data.Message = "success"
+			c.JSON(http.StatusOK, response)
+	}
+}
