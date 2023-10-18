@@ -1,49 +1,48 @@
 package main
 
 import (
-	// "gin-mongo-api/collections"
 	"gin-mongo-api/configs"
-	// "gin-mongo-api/controllers"
 	"gin-mongo-api/routes"
-
 	"github.com/gin-gonic/gin"
-	"github.com/gin-contrib/cors"
-	// "log"
-	"os"
+	"github.com/rs/cors"
 	"net/http"
-	// "github.com/joho/godotenv"
+	"os"
 )
 
 func main() {
-	// config.AllowOrigins = []string{"http://localhost:3000"}
-        router := gin.Default()
+	router := gin.Default()
 
-		configs.ConnectDB()
-		routes.UserRoute(router)
-		config := cors.DefaultConfig()
-		config.AllowAllOrigins = true
-		config.AddAllowMethods("POST", "PUT", "DELETE", "OPTIONS")
-		router.Use(cors.New(config))
-		router.Run()
-		corsMiddleware := cors.New(config)
-		router.Use(corsMiddleware)
-        routes.AdventureRoute(router)
-		router.OPTIONS("/*path", func(c *gin.Context) {
-			// Handle CORS preflight OPTIONS requests here
-			if c.Writer.Status() == http.StatusNoContent {
-				// Handle errors here (e.g., return a custom error response)
-				c.JSON(http.StatusForbidden, gin.H{"error": "CORS preflight request denied"})
-				c.Abort()
-			}
-		})
-		if os.Getenv("PROD_ENV") == "production" {
-			port := os.Getenv("PORT")
-			router.Run(":"+port)
-		} else {
-			router.Run("localhost:6000")
-	}    
+	configs.ConnectDB()
+	routes.UserRoute(router)
+	routes.AdventureRoute(router)
+
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Allow all origins
+		AllowCredentials: true,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"}, // Allow all headers
+	})
+
+	router.Use(func(context *gin.Context) {
+		c.HandlerFunc(context.Writer, context.Request)
+	})
+
+	// Handle CORS preflight OPTIONS requests
+	router.OPTIONS("/*path", func(c *gin.Context) {
+		// Just a dummy response to satisfy the preflight request
+		if c.Writer.Status() == http.StatusNoContent {
+			c.JSON(http.StatusOK, gin.H{})
+			c.Abort()
+		}
+	})
+
+	if os.Getenv("PROD_ENV") == "production" {
+		port := os.Getenv("PORT")
+		router.Run(":" + port)
+	} else {
+		router.Run("localhost:6000")
+	}
 }
-
 // func CORSMiddleware() gin.HandlerFunc {
 //     return func(c *gin.Context) {
 //         c.Writer.Header().Set("Content-Type", "application/json")
