@@ -10,7 +10,7 @@ import (
 	"github.com/gin-contrib/cors"
 	// "log"
 	"os"
-	// "net/http"
+	"net/http"
 	// "github.com/joho/godotenv"
 )
 
@@ -25,7 +25,17 @@ func main() {
 		config.AddAllowMethods("POST", "PUT", "DELETE", "OPTIONS")
 		router.Use(cors.New(config))
 		router.Run()
+		corsMiddleware := cors.New(config)
+		router.Use(corsMiddleware)
         routes.AdventureRoute(router)
+		router.OPTIONS("/*path", func(c *gin.Context) {
+			// Handle CORS preflight OPTIONS requests here
+			if c.Writer.Status() == http.StatusNoContent {
+				// Handle errors here (e.g., return a custom error response)
+				c.JSON(http.StatusForbidden, gin.H{"error": "CORS preflight request denied"})
+				c.Abort()
+			}
+		})
 		if os.Getenv("PROD_ENV") == "production" {
 			port := os.Getenv("PORT")
 			router.Run(":"+port)
