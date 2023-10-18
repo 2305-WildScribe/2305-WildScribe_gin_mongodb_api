@@ -22,6 +22,7 @@ func main() {
 		routes.UserRoute(router)
 		config := cors.DefaultConfig()
 		config.AllowAllOrigins = true
+		config.AddAllowMethods("POST", "PUT", "DELETE", "OPTIONS")
 		router.Use(cors.New(config))
 		router.Run()
         routes.AdventureRoute(router)
