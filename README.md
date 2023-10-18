@@ -1,3 +1,4 @@
+<a id="top"></a>
 # WildScribe
 
 [Team Miro Board](https://miro.com/app/board/uXjVNZAgD-U=/) 
@@ -70,7 +71,7 @@ Follow these steps to install Go on your macOS system:
 
 ## Users
 
-Description of API endpoints for Front End application
+Description of API endpoints for Front End application:
 
 ### Getting User
 
@@ -106,9 +107,20 @@ Description of API endpoints for Front End application
     }
 }
 ```
+**Error Response (400 Bad Request)**
+
+```json
+{
+    "data": {
+        "error": "Invalid Request",
+        "type": "user"
+    }
+}
+```
+---
 ## Adventures
 
-Description of API endpoints for Front End application
+Description of API endpoints for Front End application:
 
 ### Getting Adventures for User
 
@@ -170,6 +182,17 @@ Description of API endpoints for Front End application
     }
 }
 ```
+
+**Error Response (400 Bad Request)**
+
+```json
+{
+    "data": {
+        "error": "Invalid Request"
+    }
+}
+```
+---
 ### Getting An Adventure
 
 `POST /api/v0/user/adventure`
@@ -213,6 +236,24 @@ Description of API endpoints for Front End application
     }
 }
 ```
+**Error Response (404 Not Found)**
+
+```json
+{
+    "data": {
+        "error": "Invalid adventure ID",
+        "attributes": {
+            "adventure_id": [
+                {
+                    "Key": "_id",
+                    "Value": "652ff8c82ed41a2d015d993b"
+                }
+            ]
+        }
+    }
+}
+```
+---
 ### Creating An Adventure
 
 `POST /api/v0/adventure`
@@ -257,6 +298,19 @@ Description of API endpoints for Front End application
     }
 }
 ```
+**Error Response (400 Bad Request)**
+
+```json
+{
+    "data": {
+        "error": "Invalid user ID",
+        "attributes": {
+            "user_id": "65299d4ceb708107b33729c6"
+        }
+    }
+}
+```
+---
 ### Deleting An Adventure
 
 `DELETE /api/v0/adventure`
@@ -287,6 +341,20 @@ Description of API endpoints for Front End application
     }
 }
 ```
+
+**Error Response (400 Bad Request)**
+
+```json
+{
+    "data": {
+        "error": "Invalid adventure ID",
+        "attributes": {
+            "adventure_id": "6530428eb4e1886116236a8"
+        }
+    }
+}
+```
+---
 ### Updating An Adventure
 
 `PUT /api/v0/adventure`
@@ -294,12 +362,13 @@ Description of API endpoints for Front End application
 **Request**
 
 ```json
-{
- "data":{
+ {
+    "data": {
         "type": "adventure",
-        "attributes":{ 
-            "adventure_id": "12",
-            "activity": "Running",
+        "attributes": {
+            "user_id": "652ed3250b59c18916efde3f",
+            "adventure_id": "652eda24dc59c7aa766a309b",
+            "activity": "Walking",
             "date": "10/11/2023",
             "notes": "Running is hard",
             "image_url": "https://www.rei.com/dam/parrish_091412_0679_main_lg.jpg",
@@ -314,3 +383,32 @@ Description of API endpoints for Front End application
     }
 }
 ```
+**Success Response (200 OK)**:
+
+- **Status**: 200 OK
+- **Description**: Successful response with success message
+- **Data format**: a hash with message and and adventure type
+
+```json
+{
+    "data": {
+        "type": "adventure",
+        "message": "success"
+    }
+}
+```
+
+**Error Response (400 Bad Request)**
+
+```json
+{
+    "data": {
+        "error": "Invalid Request"
+    }
+}
+```
+---
+# Developed With
+<img src="https://raw.githubusercontent.com/devicons/devicon/55609aa5bd817ff167afce0d965585c92040787a/icons/heroku/heroku-original-wordmark.svg" width="50" alt="heroku Logo"><img src="https://raw.githubusercontent.com/devicons/devicon/55609aa5bd817ff167afce0d965585c92040787a/icons/github/github-original.svg" width="50" alt="github Logo"><img src="https://camo.githubusercontent.com/d4de39c8b497d0e00bf90a543e9e43a30e87a057445832e4865197d002392538/68747470733a2f2f7261772e6769746875622e636f6d2f436972636c6543492d5075626c69632f63696d672d676f2f6d61696e2f696d672f636972636c652d676f2e7376673f73616e6974697a653d74727565" width="50"><img src="https://assets.stickpng.com/images/6299f743b04c5ae587c4119d.png" width="50"><img src="https://seeklogo.com/images/M/mongodb-logo-D13D67C930-seeklogo.com.png" width="50"><img src= "https://d3r49iyjzglexf.cloudfront.net/circleci-logo-stacked-fb-657e221fda1646a7e652c09c9fbfb2b0feb5d710089bb4d8e8c759d37a832694.png" width="50">
+---
+<a href="#top">Back to Top</a>
