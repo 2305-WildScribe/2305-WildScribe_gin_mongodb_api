@@ -77,20 +77,25 @@ func GetAUser() gin.HandlerFunc {
             defer cancel()
 
             var requestBody requests.GetUserRequest
+            var userResponse responses.UserResponse
+            var user models.User
             // Binds http request to requestBody
             if err := c.ShouldBindJSON(&requestBody); err != nil {
-                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                userResponse.Data.Error = "Invalid Request"
+                userResponse.Data.Type = "user"
+                c.JSON(http.StatusBadRequest, userResponse)
                 return
             }
     
-			var user models.User
-            var userResponse responses.UserResponse
 			defer cancel()
             email := requestBody.Data.Attributes.Email
             filter := bson.D{{Key:"email", Value: email}}
 			err := userCollection.FindOne(ctx, filter).Decode(&user)
 			if err != nil {
-                c.JSON(http.StatusInternalServerError, userResponse)
+                userResponse.Data.Error = "Invalid Email / Password"
+                userResponse.Data.Type = "user"
+                userResponse.Data.Attributes = map[string]interface{}{"email": requestBody.Data.Attributes.Email, "password": requestBody.Data.Attributes.Password}
+                c.JSON(http.StatusUnauthorized, userResponse)
                 return
 			}
             password := []byte(requestBody.Data.Attributes.Password)
