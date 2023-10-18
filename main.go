@@ -4,39 +4,26 @@ import (
 	"gin-mongo-api/configs"
 	"gin-mongo-api/routes"
 	"github.com/gin-gonic/gin"
-	"github.com/rs/cors"
-	"net/http"
+	"github.com/gin-contrib/cors"
+	// "github.com/rs/cors"
+	// "net/http"
 	"os"
 )
 
 func main() {
 	router := gin.Default()
+	// same as
+	// config := cors.DefaultConfig()
+	// config.AllowAllOrigins = true
+	// router.Use(cors.New(config))
+	router.Use(cors.Default())
+	router.Run()
 
-	configs.ConnectDB()
-	routes.UserRoute(router)
 	routes.AdventureRoute(router)
-
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"}, // Allow all origins
-		AllowCredentials: true,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"*"}, // Allow all headers
-	})
-
-	router.Use(func(context *gin.Context) {
-		c.HandlerFunc(context.Writer, context.Request)
-	})
-
-	// Handle CORS preflight OPTIONS requests
-	router.OPTIONS("/*path", func(c *gin.Context) {
-		// Just a dummy response to satisfy the preflight request
-		if c.Writer.Status() == http.StatusNoContent {
-			c.JSON(http.StatusOK, gin.H{})
-			c.Abort()
-		}
-	})
-
+	routes.UserRoute(router)
+	
 	if os.Getenv("PROD_ENV") == "production" {
+		configs.ConnectDB()
 		port := os.Getenv("PORT")
 		router.Run(":" + port)
 	} else {
