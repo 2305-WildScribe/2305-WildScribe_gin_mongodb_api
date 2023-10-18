@@ -56,8 +56,7 @@ func TestGetAUser(t *testing.T) {
 }
 func TestCreateAdventure(t *testing.T) {
     // Create a mock adventure collection
-	user_id = "652ed3250b59c18916efde3f"
-	user_id = "65299e96eb708107b33729c8"
+
     var requestBody requests.AdventureRequest
     requestBody.Data.Type = "adventure"
     requestBody.Data.Attributes.User_id = user_id
