@@ -72,7 +72,245 @@ Follow these steps to install Go on your macOS system:
 
 Description of API endpoints for Front End application
 
-### Getting users
+### Getting User
 
-`GET /api/`
+`POST /api/v0/user`
 
+**Request**
+
+```json
+{
+    "data": {
+        "type": "user",
+        "attributes": {
+            "email": "me@gmail.com",
+            "password": "hi"
+        }
+    }
+}
+```
+**Success Response (200 OK)**:
+
+- **Status**: 200 OK
+- **Description**: Successful response with user id
+- **Data format**: a hash with a hash of user data
+
+```json
+{
+    "data": {
+        "type": "user",
+        "attributes": {
+            "name": "Ian",
+            "user_id": "652edaa67a75034ea37c6652"
+        }
+    }
+}
+```
+## Adventures
+
+Description of API endpoints for Front End application
+
+### Getting Adventures for User
+
+`POST /api/v0/user/adventures`
+
+**Request**
+
+```json
+{
+    "data":{
+        "type": "adventure",
+        "attributes":{
+            "adventure_id": "652da923ff996de855a6d39d"
+        }
+    }
+}
+```
+**Success Response (200 OK)**:
+
+- **Status**: 200 OK
+- **Description**: Successful response with all adventures associated with user id
+- **Data format**: a hash with all adventures, with a hash of adventure data
+
+```json
+{
+    "data": {
+        "type": "adventure",
+        "attributes": {
+            "user_id": "65299d4ceb708107b33729c6",
+            "adventure_id": "652da923ff996de855a6d39d",
+            "activity": "Running",
+            "date": "10/11/2023",
+            "image_url": "https://www.rei.com/dam/parrish_091412_0679_main_lg.jpg",
+            "stress_level": "Very High",
+            "hours_slept": 8,
+            "sleep_stress_notes": "notes about sleep and stress",
+            "hydration": "Hydrated",
+            "diet": "Good Diet",
+            "diet_hydration_notes": "Some Hydraytion",
+            "beta_notes": "Running is real hard"
+        }
+    },
+    {
+        "type": "adventure",
+        "attributes": {
+            "user_id": "65299d4ceb708107b33729c6",
+            "adventure_id": "652da923ff996de855a6d39d",
+            "activity": "Swimming",
+            "date": "10/11/2024",
+            "image_url": "https://www.rei.com/dam/parrish_091412_0679_main_lg.jpg",
+            "stress_level": "High",
+            "hours_slept": 9,
+            "sleep_stress_notes": "notes about sleep and stress",
+            "hydration": "Hydrated",
+            "diet": "Good Diet",
+            "diet_hydration_notes": "Some Hydraytion",
+            "beta_notes": "Swimming is real hard"
+        }
+    }
+}
+```
+### Getting An Adventure
+
+`POST /api/v0/user/adventure`
+
+**Request**
+
+```json
+{
+    "data":{
+        "type": "adventure",
+        "attributes":{
+            "adventure_id": "652ff8c82ed41a2d015d993b"
+        }
+    }
+}
+```
+**Success Response (200 OK)**:
+
+- **Status**: 200 OK
+- **Description**: Successful response with adventure data associated with adventure id
+- **Data format**: a hash with adventure, with a hash of adventure data
+
+```json
+{
+    "data": {
+        "type": "adventure",
+        "attributes": {
+            "user_id": "65299d4ceb708107b33729c6",
+            "adventure_id": "652ff8c82ed41a2d015d993b",
+            "activity": "Running",
+            "date": "10/11/2023",
+            "image_url": "https://www.rei.com/dam/parrish_091412_0679_main_lg.jpg",
+            "stress_level": "Very High",
+            "hours_slept": 8,
+            "sleep_stress_notes": "notes about sleep and stress",
+            "hydration": "Hydrated",
+            "diet": "Good Diet",
+            "diet_hydration_notes": "Some Hydraytion",
+            "beta_notes": "Running is real hard"
+        }
+    }
+}
+```
+### Creating An Adventure
+
+`POST /api/v0/adventure`
+
+**Request**
+
+```json
+{
+ "data": {
+        "type": "adventure",
+        "attributes": {
+            "user_id": "65299d4ceb708107b33729c6",
+            "activity": "Running",
+            "date": "10/11/2023",
+            "notes": "Running is hard",
+            "image_url": "https://www.rei.com/dam/parrish_091412_0679_main_lg.jpg",
+            "stress_level": "Very High",
+            "hours_slept": 8,
+            "sleep_stress_notes": "notes about sleep and stress",
+            "hydration": "Hydrated",
+            "diet": "Good Diet",
+            "diet_hydration_notes": "Some Hydraytion",
+            "beta_notes": "Running is real hard"
+        }
+    }
+}
+```
+**Success Response (201 OK)**:
+
+- **Status**: 201 OK
+- **Description**: Successful response with adventure id and success message
+- **Data format**: a hash with message, with a hash of new adventure id
+
+```json
+{
+    "data": {
+        "type": "adventure",
+        "message": "success",
+        "attributes": {
+            "adventure_id": "652ff8c82ed41a2d015d993b"
+        }
+    }
+}
+```
+### Deleting An Adventure
+
+`DELETE /api/v0/adventure`
+
+**Request**
+
+```json
+{
+    "data": {
+        "type": "adventure",
+        "attributes": {
+            "adventure_id":"6530428eb4e1886116236a8a"
+        }
+    }
+}
+```
+**Success Response (200 OK)**:
+
+- **Status**: 200 OK
+- **Description**: Successful response with success message
+- **Data format**: a hash with message and and adventure type
+
+```json
+{
+    "data": {
+        "type": "adventure",
+        "message": "success"
+    }
+}
+```
+### Updating An Adventure
+
+`PUT /api/v0/adventure`
+
+**Request**
+
+```json
+{
+ "data":{
+        "type": "adventure",
+        "attributes":{ 
+            "adventure_id": "12",
+            "activity": "Running",
+            "date": "10/11/2023",
+            "notes": "Running is hard",
+            "image_url": "https://www.rei.com/dam/parrish_091412_0679_main_lg.jpg",
+            "stress_level": "Very High",
+            "hours_slept": 8,
+            "sleep_stress_notes": "notes about sleep and stress",
+            "hydration": "Hydrated",
+            "diet": "Good Diet",
+            "diet_hydration_notes": "Some Hydraytion",
+            "beta_notes": "Running is real hard"
+        }
+    }
+}
+```
