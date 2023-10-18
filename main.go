@@ -17,11 +17,11 @@ func main() {
 	// config.AllowAllOrigins = true
 	// router.Use(cors.New(config))
 	router.Use(cors.Default())
-	router.Run()
-
+	
 	routes.AdventureRoute(router)
 	routes.UserRoute(router)
 	
+	router.Run()
 	if os.Getenv("PROD_ENV") == "production" {
 		configs.ConnectDB()
 		port := os.Getenv("PORT")
