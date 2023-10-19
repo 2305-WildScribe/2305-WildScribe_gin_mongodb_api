@@ -21,7 +21,7 @@ func main() {
 	routes.AdventureRoute(router)
 	routes.UserRoute(router)
 	
-	router.Run()
+	// router.Run()
 	if os.Getenv("PROD_ENV") == "production" {
 		configs.ConnectDB()
 		port := os.Getenv("PORT")
