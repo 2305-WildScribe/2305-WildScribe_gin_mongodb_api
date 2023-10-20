@@ -3,7 +3,9 @@
 
 [Team Miro Board](https://miro.com/app/board/uXjVNZAgD-U=/) 
 
-[WildScribe Organization](https://github.com/2305-WildScribe)
+[WildScribe Front End Repo](https://github.com/2305-WildScribe/2305-WildScribe_FE)
+
+[Deployment](https://wildscribe.vercel.app/)
 
 ## Development Teams
 
