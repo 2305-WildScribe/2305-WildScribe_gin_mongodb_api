@@ -9,3 +9,10 @@ type User struct {
     Password    string             `json:"password,omitempty" validate:"required"`
 }
 
+func NewUser(name, email, password string) *User {
+    return &User{
+        Name:     name,
+        Email:    email,
+        Password: password,
+    }
+}
