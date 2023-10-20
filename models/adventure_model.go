@@ -16,3 +16,31 @@ type Adventure struct {
     Diet_hydration_notes string `json:"diet_hydration_notes,omitempty"`
     Beta_notes           string `json:"beta_notes,omitempty"`
 }
+
+func NewAdventure(
+    user_id string,
+    activity string,
+    date string,
+    image_url string,
+    stress_level string,
+    hours_slept int,
+    sleep_stress_notes string,
+    hydration string,
+    diet string,
+    diet_hydration_notes string,
+    beta_notes string,
+) *Adventure {
+    return &Adventure{
+        User_id:              user_id,
+        Activity:             activity,
+        Date:                 date,
+        Image_url:            image_url,
+        Stress_level:         stress_level,
+        Hours_slept:          hours_slept,
+        Sleep_stress_notes:   sleep_stress_notes,
+        Hydration:            hydration,
+        Diet:                 diet,
+        Diet_hydration_notes: diet_hydration_notes,
+        Beta_notes:           beta_notes,
+    }
+}
