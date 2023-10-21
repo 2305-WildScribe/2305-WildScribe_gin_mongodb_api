@@ -51,7 +51,7 @@ func TestGetAUser(t *testing.T) {
     // Assert that the response code is HTTP 201 (Created)
     assert.Equal(t, http.StatusOK, response.Code)
     assert.Equal(t, "Ian", name)
-    assert.Equal(t, "6532e2c5fcb829e722f771b1", user_id)
+    assert.Equal(t, "65330eb5fcb829e722f7c40c", user_id)
 
 }
 func TestCreateAdventure(t *testing.T) {
