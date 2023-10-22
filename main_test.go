@@ -22,23 +22,17 @@ var user_id string
 func TestGetAUser(t *testing.T) {
 	email := "me@gmail.com"
 	password := "hi"
-
 	var requestBody requests.GetUserRequest
-
 	requestBody.Data.Type = "user"
 	requestBody.Data.Attributes.Email = email
 	requestBody.Data.Attributes.Password = password
-
 	router := gin.Default()
 
-    router.POST("/api/v0/user", controllers.GetAUser())
-
-    body, _ := json.Marshal(requestBody)
-
-    req, _ := http.NewRequest(http.MethodPost, "/api/v0/user", bytes.NewBuffer(body))
-    response := httptest.NewRecorder()
-
-    router.ServeHTTP(response, req)
+	router.POST("/api/v0/user", controllers.GetAUser())
+	body, _ := json.Marshal(requestBody)
+	req, _ := http.NewRequest(http.MethodPost, "/api/v0/user", bytes.NewBuffer(body))
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, req)
 
 	var responseBody responses.AdventureResponse
 	err := json.Unmarshal(response.Body.Bytes(), &responseBody)
@@ -48,30 +42,26 @@ func TestGetAUser(t *testing.T) {
 	// Access the adventure ID
 	name := responseBody.Data.Attributes["name"].(string)
 	user_id = responseBody.Data.Attributes["user_id"].(string)
-    // Assert that the response code is HTTP 201 (Created)
-    assert.Equal(t, http.StatusOK, response.Code)
-    assert.Equal(t, "Ian", name)
-    assert.Equal(t, "652edaa67a75034ea37c6652", user_id)
+	// Assert that the response code is HTTP 201 (Created)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.Equal(t, "Ian", name)
+	assert.Equal(t, "652edaa67a75034ea37c6652", user_id)
 
 }
 func TestCreateAdventure(t *testing.T) {
-    // Create a mock adventure collection
+	// Create a mock adventure collection
 
-    var requestBody requests.AdventureRequest
-    requestBody.Data.Type = "adventure"
-    requestBody.Data.Attributes.User_id = user_id
-    requestBody.Data.Attributes.Activity = "Test Activity"
+	var requestBody requests.AdventureRequest
+	requestBody.Data.Type = "adventure"
+	requestBody.Data.Attributes.User_id = user_id
+	requestBody.Data.Attributes.Activity = "Test Activity"
+	router := gin.Default()
+	router.POST("/api/v0/adventure", controllers.CreateAdventure())
 
-    router := gin.Default()
-
-    router.POST("/api/v0/adventure", controllers.CreateAdventure())
-
-    body, _ := json.Marshal(requestBody)
-
-    req, _ := http.NewRequest(http.MethodPost, "/api/v0/adventure", bytes.NewBuffer(body))
-    response := httptest.NewRecorder()
-
-    router.ServeHTTP(response, req)
+	body, _ := json.Marshal(requestBody)
+	req, _ := http.NewRequest(http.MethodPost, "/api/v0/adventure", bytes.NewBuffer(body))
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, req)
 
 	var responseBody responses.AdventureResponse
 	err := json.Unmarshal(response.Body.Bytes(), &responseBody)
@@ -80,10 +70,10 @@ func TestCreateAdventure(t *testing.T) {
 	}
 	// Access the adventure ID
 	adventure_id = responseBody.Data.Attributes["adventure_id"].(string)
-    // Assert that the response code is HTTP 201 (Created)
-    assert.Equal(t, http.StatusCreated, response.Code)
+	// Assert that the response code is HTTP 201 (Created)
+	assert.Equal(t, http.StatusCreated, response.Code)
 
-    // Additional assertions if needed
+	// Additional assertions if needed
 }
 func TestGetAnAdventure(t *testing.T) {
 	// Create a new Gin router
@@ -107,29 +97,22 @@ func TestGetAnAdventure(t *testing.T) {
 	}
 	// Create a response recorder to capture the response
 	recorder := httptest.NewRecorder()
-
 	// Serve the request using the router
 	router.ServeHTTP(recorder, req)
-
 	// Assert that the response code is HTTP 200 (OK)
 	assert.Equal(t, http.StatusOK, recorder.Code)
-
 	// Perform additional assertions on the response body or other aspects as needed
 }
 func TestDeleteAdventure(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-
 	var requestBody requests.DeleteAdventureRequest
 	
 	requestBody.Data.Type = "adventure"
 	requestBody.Data.Attributes.Adventure_id = adventure_id
-
 	router := gin.Default()
-	
 	router.DELETE("/api/v0/adventure", controllers.DeleteAdventure())
 	
 	body, _ := json.Marshal(requestBody)
-	
 	req, _ := http.NewRequest(http.MethodDelete, "/api/v0/adventure", bytes.NewBuffer(body))
 	response := httptest.NewRecorder()
 	
@@ -139,34 +122,34 @@ func TestDeleteAdventure(t *testing.T) {
 
 
 func TestGetAdventuresForUser(t *testing.T) {
-    // Create a new Gin router
-    router := gin.Default()
+	// Create a new Gin router
+	router := gin.Default()
 
-    // Create a request JSON body
-    requestBody := `{
-        "data": {
-            "type": "adventures",
-            "attributes": {
-                "user_id": "` + user_id + `"
-            }
-        }
-    }`
-	router.POST("/api/v0/user/adventures", controllers.GetAdventuresForUser())
+	// Create a request JSON body
+	requestBody := `{
+		"data": {
+			"type": "adventures",
+			"attributes": {
+				"user_id": "` + user_id + `"
+			}
+		}
+	}`
+router.POST("/api/v0/user/adventures", controllers.GetAdventuresForUser())
 
-    // Create an HTTP request
-    req, err := http.NewRequest(http.MethodPost, "/api/v0/user/adventures", strings.NewReader(requestBody))
-    if err != nil {
-        t.Fatal(err)
-    }
+	// Create an HTTP request
+	req, err := http.NewRequest(http.MethodPost, "/api/v0/user/adventures", strings.NewReader(requestBody))
+	if err != nil {
+		t.Fatal(err)
+	}
 
-    // Create a response recorder to capture the response
-    recorder := httptest.NewRecorder()
+	// Create a response recorder to capture the response
+	recorder := httptest.NewRecorder()
 
-    // Serve the request using the router
-    router.ServeHTTP(recorder, req)
+	// Serve the request using the router
+	router.ServeHTTP(recorder, req)
 
-    // Assert that the response code is HTTP 200 (OK)
-    assert.Equal(t, http.StatusOK, recorder.Code)
+	// Assert that the response code is HTTP 200 (OK)
+	assert.Equal(t, http.StatusOK, recorder.Code)
 
-    // Perform additional assertions on the response body or other aspects as needed
+	// Perform additional assertions on the response body or other aspects as needed
 }
