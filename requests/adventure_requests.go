@@ -1,4 +1,8 @@
 package requests
+
+// import (
+//     "gopkg.in/go-playground/validator.v9"
+// )
 	
 
 type DeleteAdventureRequest struct {
@@ -46,3 +50,12 @@ type GetUserAdventureRequest struct {
 		} `json:"attributes" binding:"required"`
 	} `json:"data" binding:"required"`
 }
+
+// var validate = validator.New()
+
+// func validateRequest(request interface{}) error {
+// 	if err := validate.Struct(request); err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
