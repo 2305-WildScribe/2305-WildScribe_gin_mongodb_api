@@ -4,6 +4,7 @@ import (
 	"context"
 	// "gin-mongo-api/collections"
 	"gin-mongo-api/requests"
+	"gin-mongo-api/validations"
 
 	// "gin-mongo-api/authentication"
 	"gin-mongo-api/configs"
@@ -12,7 +13,6 @@ import (
 	"gin-mongo-api/serializers"
 	"net/http"
 	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
@@ -21,7 +21,7 @@ import (
     // "encoding/json"
 )
 
-var validateAdventure = validator.New()
+
 var adventureCollection *mongo.Collection = configs.GetCollection(configs.DB, "adventures")
 
 // func SetAdventureCollection(collection collections.AdventureCollection) {
@@ -41,22 +41,29 @@ func userExists(ctx context.Context, userID string) bool {
 
 func CreateAdventure() gin.HandlerFunc {
     return func(c *gin.Context) {
+        var validate = validator.New()
         ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
         defer cancel()
+
         // Sets a error response struct
         var error_response responses.AdventureErrorResponse
+
         // Sets a request struct
         var requestBody requests.AdventureRequest
+
         // Sets a response struct
         var response responses.AdventureResponse
         response.Data.Type = "adventure"
+
+        var adventure_validation validations.AdventureValidation
+
         // Binds http response to request struct and checks for required fields
         if err := c.ShouldBindJSON(&requestBody); err != nil {
-            // requestBodyJSON, _ := json.Marshal(requestBody)
-            // error_response.Data.Error = string(requestBodyJSON)
+            error_response.Data.Error = "Invalid Request"
             c.JSON(http.StatusBadRequest, error_response)
             return
         }
+
         // Gets User ID
         userID := requestBody.Data.Attributes.User_id
         // Checks if user exist
@@ -68,6 +75,10 @@ func CreateAdventure() gin.HandlerFunc {
         }
         // If all validations pass then serializes the request
         adventure := serializers.SerializeCreateAdventureRequest(requestBody)
+        if err := validate.Struct(adventure_validation); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
         // Inserts the serialized model into the db
         result, _ := adventureCollection.InsertOne(ctx, adventure)
         // Sets a resposne struct and returns 201 and success if created
