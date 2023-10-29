@@ -20,9 +20,9 @@ func EnvMongoURI() string {
 
 func DatabaseEnvironment() string {
 	if os.Getenv("PROD_ENV") == "production" {
-		return "test"
-	}	else if os.Getenv("ENV") == "test"{
 		return "production"
+	}	else if os.Getenv("ENV") == "test"{
+		return "test"
 	}	
 	err := godotenv.Load()
 	if err != nil {
