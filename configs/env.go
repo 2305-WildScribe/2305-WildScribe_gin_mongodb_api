@@ -19,13 +19,13 @@ func EnvMongoURI() string {
 }
 
 func DatabaseEnvironment() string {
-	if os.Getenv("ENV") == "production" {
-		return "golangAPI"
+	if os.Getenv("ENV") == "test" {
+		return "test"
 	}	else	{
 		err := godotenv.Load()
 		if err != nil {
 			log.Fatal("Error loading .env file")
 		}
-		return "test"
+		return "production"
 	}
 }
