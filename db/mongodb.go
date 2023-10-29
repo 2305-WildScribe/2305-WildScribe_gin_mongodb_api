@@ -9,7 +9,7 @@ import (
 )
 
 var client *mongo.Client = ConnectToMongoDB()
-var database = configs.DatabaseEnvironment()
+var database = client.Database(configs.DatabaseEnvironment())
 
 func ConnectToMongoDB() *mongo.Client {
     // Set client options
@@ -31,11 +31,11 @@ func ConnectToMongoDB() *mongo.Client {
 
 // Get a specfic collection
 func GetCollection(collectionName string) *mongo.Collection {
-    collection := client.Database(database).Collection(collectionName)
+    collection := database.Collection(collectionName)
     return collection
 }
 
 func SetDataBase(db_string string) {
-    database = db_string
+    database = client.Database(db_string)
 }
 
