@@ -15,12 +15,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"strings"
 )
-var adventureCollection *mongo.Collection = db.GetCollection("adventures")
+var adventureCollection *mongo.Collection 
 var adventure_id string
 var user_id string
 
 func init(){
 	db.SetDataBase("test")
+	adventureCollection = db.GetCollection("adventures")
 }
 func TestGetAUser(t *testing.T) {
 	email := "me@gmail.com"
