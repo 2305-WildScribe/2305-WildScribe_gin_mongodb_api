@@ -9,7 +9,7 @@ import (
 )
 
 var client *mongo.Client = ConnectToMongoDB()
-var database = client.Database(configs.DatabaseEnvironment())
+var database = client.Database("test")
 
 func ConnectToMongoDB() *mongo.Client {
     // Set client options
