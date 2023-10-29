@@ -3,7 +3,7 @@ package main_test
 import (
 	"bytes"
 	"encoding/json"
-	"gin-mongo-api/configs"
+	"gin-mongo-api/db"
 	"gin-mongo-api/controllers"
 	"gin-mongo-api/requests"
 	"gin-mongo-api/responses"
@@ -15,10 +15,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"strings"
 )
-
-var adventureCollection *mongo.Collection = configs.GetCollection(configs.DB, "adventures")
+var adventureCollection *mongo.Collection = db.GetCollection("adventures")
 var adventure_id string
 var user_id string
+
+func init(){
+	db.SetDataBase("test")
+}
 func TestGetAUser(t *testing.T) {
 	email := "me@gmail.com"
 	password := "hi"
@@ -51,8 +54,6 @@ func TestGetAUser(t *testing.T) {
     // Assert that the response code is HTTP 201 (Created)
     assert.Equal(t, http.StatusOK, response.Code)
     assert.Equal(t, "Ian", name)
-    assert.Equal(t, "65330eb5fcb829e722f7c40c", user_id)
-
 }
 func TestCreateAdventure(t *testing.T) {
     // Create a mock adventure collection

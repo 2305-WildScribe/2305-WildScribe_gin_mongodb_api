@@ -2,31 +2,25 @@ package controllers
 
 import (
 	"context"
-	// "gin-mongo-api/collections"
+	"gin-mongo-api/db"
 	"gin-mongo-api/requests"
-	"gin-mongo-api/validations"
-
-	// "gin-mongo-api/authentication"
-	"gin-mongo-api/configs"
+	// "gin-mongo-api/validations"
 	"gin-mongo-api/models"
 	"gin-mongo-api/responses"
 	"gin-mongo-api/serializers"
 	"net/http"
 	"time"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
+	// "github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-    // "encoding/json"
+
 )
 
 
-var adventureCollection *mongo.Collection = configs.GetCollection(configs.DB, "adventures")
+var adventureCollection *mongo.Collection = db.GetCollection("adventures")
 
-// func SetAdventureCollection(collection collections.AdventureCollection) {
-//     adventureCollection = collection
-// }
 
 func userExists(ctx context.Context, userID string) bool {
     // Checks if a valid user id before going to db
@@ -41,7 +35,7 @@ func userExists(ctx context.Context, userID string) bool {
 
 func CreateAdventure() gin.HandlerFunc {
     return func(c *gin.Context) {
-        var validate = validator.New()
+        // var validate = validator.New()
         ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
         defer cancel()
 
@@ -55,7 +49,7 @@ func CreateAdventure() gin.HandlerFunc {
         var response responses.AdventureResponse
         response.Data.Type = "adventure"
 
-        var adventure_validation validations.AdventureValidation
+        // var adventure_validation validations.AdventureValidation
 
         // Binds http response to request struct and checks for required fields
         if err := c.ShouldBindJSON(&requestBody); err != nil {
@@ -75,10 +69,10 @@ func CreateAdventure() gin.HandlerFunc {
         }
         // If all validations pass then serializes the request
         adventure := serializers.SerializeCreateAdventureRequest(requestBody)
-        if err := validate.Struct(adventure_validation); err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-            return
-        }
+        // if err := validate.Struct(adventure_validation); err != nil {
+        //     c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        //     return
+        // }
         // Inserts the serialized model into the db
         result, _ := adventureCollection.InsertOne(ctx, adventure)
         // Sets a resposne struct and returns 201 and success if created

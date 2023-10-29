@@ -2,7 +2,7 @@ package controllers
 
 import (
     "context"
-    "gin-mongo-api/configs"
+	"gin-mongo-api/db"
     "gin-mongo-api/models"
     "gin-mongo-api/responses"
     "gin-mongo-api/requests"
@@ -10,14 +10,14 @@ import (
     "golang.org/x/crypto/bcrypt"
     "net/http"
     "time"
-
     "github.com/gin-gonic/gin"
     "github.com/go-playground/validator/v10"
-    "go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var userCollection *mongo.Collection = configs.GetCollection(configs.DB, "users")
+var userCollection *mongo.Collection = db.GetCollection("users")
+
 var validate = validator.New()
 
 func hashAndSalt(pwd []byte) string {

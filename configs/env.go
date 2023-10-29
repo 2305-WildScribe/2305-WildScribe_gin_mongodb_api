@@ -17,3 +17,15 @@ func EnvMongoURI() string {
 			return os.Getenv("MONGOURI")
 		}
 }
+
+func DatabaseEnvironment() string {
+	if os.Getenv("ENV") == "production" {
+		return "golangAPI"
+	}	else	{
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
+		return "test"
+	}
+}
