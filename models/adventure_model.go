@@ -12,9 +12,11 @@ type Adventure struct {
     Hours_slept          int    `json:"hours_slept,omitempty"`
     Sleep_stress_notes   string `json:"sleep_stress_notes,omitempty"`
     Hydration            string `json:"hydration,omitempty"`
-    Diet                 string `json:"diet,omitempty"`
+    Diet                 int    `json:"diet,omitempty"`
     Diet_hydration_notes string `json:"diet_hydration_notes,omitempty"`
     Beta_notes           string `json:"beta_notes,omitempty"`
+    Lat                  float64 `json:"lat,omitempty"`
+	Lon                  float64 `json:"lon,omitempty"`
 }
 
 func NewAdventure(
@@ -26,9 +28,11 @@ func NewAdventure(
     hours_slept int,
     sleep_stress_notes string,
     hydration string,
-    diet string,
+    diet int,
     diet_hydration_notes string,
     beta_notes string,
+    lat float64,
+    lon float64,
 ) *Adventure {
     return &Adventure{
         User_id:              user_id,
@@ -42,5 +46,7 @@ func NewAdventure(
         Diet:                 diet,
         Diet_hydration_notes: diet_hydration_notes,
         Beta_notes:           beta_notes,
+        Lat:                  lat,
+        Lon:                  lon,
     }
 }

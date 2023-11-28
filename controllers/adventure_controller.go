@@ -123,47 +123,34 @@ func GetAnAdventure() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-        // Set Request Body
 		var requestBody requests.GetAdventureRequest
-        // Set Response Defaults
         var response responses.GetAnAdventureResponse
         response.Data.Type = "adventure"
-        // Set Response Error
         var error_response responses.AdventureErrorResponse
-        // Binds request json to requestBody
 		if err := c.ShouldBindJSON(&requestBody); err != nil {
             error_response.Data.Error = "Invalid Request"
             c.JSON(http.StatusBadRequest, error_response)
 			return
 		}
-        // Gets Adventure ID and sets it as a var
 		adventureId := requestBody.Data.Attributes.Adventure_id
-        // Check if valid ID
 		objId, err := primitive.ObjectIDFromHex(adventureId)
-        // Returns Bad Request if invalid format
 		if err != nil {
             error_response.Data.Error = "Invalid adventure ID"
             error_response.Data.Attributes = map[string]interface{}{"adventure_id": adventureId }
             c.JSON(http.StatusBadRequest, error_response)
 			return
 		}
-        // Set model type for find
         var adventure models.Adventure
-        // Sets Filter adventure by objid
         filter := bson.D{{Key:"_id",Value:objId}}
-        // Finds adventure in collection
         result := adventureCollection.FindOne(ctx, filter).Decode(&adventure)
-        // Returns 404 if Adventure not found
 		if result != nil {   
             error_response.Data.Error = "Invalid adventure ID"
             error_response.Data.Attributes = map[string]interface{}{"adventure_id": filter }
             c.JSON(http.StatusNotFound, error_response)
 			return
 		}
-        // Set Response 
         response.Data.Attributes = adventure
         response.Data.Type = "adventure"
-        // Send JSON
 		c.JSON(http.StatusOK, response)
 	}
 }
