@@ -36,9 +36,11 @@ type AdventureRequest struct {
             Hours_slept          int    `json:"hours_slept,omitempty"`
             Sleep_stress_notes   string `json:"sleep_stress_notes,omitempty"`
             Hydration            string `json:"hydration,omitempty"`
-            Diet                 string `json:"diet,omitempty"`
+            Diet                 int `json:"diet,omitempty"`
             Diet_hydration_notes string `json:"diet_hydration_notes,omitempty"`
             Beta_notes           string `json:"beta_notes,omitempty"`
+            Lat                  float64 `json:"lat,omitempty"`
+            Lon                  float64 `json:"lon,omitempty"`
         } `json:"attributes" binding:"required"`
     } `json:"data" binding:"required"`
 }
